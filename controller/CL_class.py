@@ -80,8 +80,9 @@ class ControlLaw(object):
             self.stop = True
             self.error = True
             return np.zeros(shape=(6, 1))
-        s = fe.kp_to_s(valid_kp_img)
-        s_des = fe.kp_to_s(valid_kp_des)
+        width, height = img.shape[:2]
+        s = fe.kp_to_s(valid_kp_img, width/2)
+        s_des = fe.kp_to_s(valid_kp_des, width/2)
         lx_apr = np.linalg.pinv(self.__lx(s, z))
         z *= z_scale
         lx = np.linalg.pinv(self.__lx(s, z))

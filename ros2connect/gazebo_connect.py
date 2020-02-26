@@ -35,12 +35,12 @@ class SpeedPublisher(Node):
             __msg.angular.y = -self.vel[3][0]
             __msg.angular.z = -self.vel[4][0]
         if len(self.vel) == 2:
-            __msg.linear.x = self.vel[0][0]
+            __msg.linear.x = -self.vel[0][0]
             __msg.linear.y = 0.
             __msg.linear.z = 0.
             __msg.angular.x = 0.
             __msg.angular.y = 0.
-            __msg.angular.z = - 50 * self.vel[1][0]
+            __msg.angular.z = 10 * self.vel[1][0]
         self.publisher_.publish(__msg)
 
     def pub_vel_robot_coord(self):

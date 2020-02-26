@@ -5,7 +5,7 @@ import numpy as np
 def b_force(kp_des, desc_des, kp_s, desc_s):
     bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
     kp_num = 100
-    acc = 15.
+    acc = 20.
 
     # Match descriptors.
     matches = bf.match(desc_des, desc_s)
@@ -30,7 +30,6 @@ def b_force(kp_des, desc_des, kp_s, desc_s):
         for idx2, inl2 in enumerate(inliers):
             obj_len += np.linalg.norm(np.float32(kp_des[inl1.queryIdx].pt) - np.float32(kp_des[inl2.queryIdx].pt))
             test_len += np.linalg.norm(np.float32(kp_s[inl1.trainIdx].pt) - np.float32(kp_s[inl2.trainIdx].pt))
-
 
     valid_kp_des = []
     valid_kp_s = []

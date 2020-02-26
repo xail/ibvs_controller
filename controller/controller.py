@@ -20,8 +20,8 @@ def main(args=None):
     #if img is None:
     #    rclpy.spin_once(subscriber)
     #    img = subscriber.img
-    Plot = True
-    lmbda = 0.5
+    Plot = False
+    lmbda = 3
     accuracy = 0.01
 
     #cl = Cc.ControlLaw(lmbda)

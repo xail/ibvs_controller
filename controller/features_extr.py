@@ -16,8 +16,8 @@ def extract_f_vec(img):
     return s
 
 
-def kp_to_s(kp):
+def kp_to_s(kp, x=0, y=0):
     s = np.ndarray(shape=(1, 2), dtype=float)
     for point in kp:
-        s = np.append(s, [[point.pt[0], point.pt[1]]], axis=0)
+        s = np.append(s, [[point.pt[0] - x, point.pt[1] - y]], axis=0)
     return np.delete(s, 0, 0)
