@@ -12,7 +12,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools', 'matplotlib', 'numpy'],
+    install_requires=['setuptools', 'numpy'],
     zip_safe=True,
     author='Alex Utkin',
     author_email='xai@yandex.ru',

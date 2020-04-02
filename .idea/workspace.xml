@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d4933d25-73f1-4a43-a8c9-4918bb4ca355" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +95,14 @@
       <option name="project" value="LOCAL" />
       <updated>1585834256993</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="First commit Pi brunch. plt remove">
+      <created>1585840731824</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1585840731824</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -116,13 +124,14 @@
     </ignored-roots>
     <MESSAGE value="Рабочий билд до попыток залить на робота 26.02.20&#10;Добавлено смещение по оси X, но нет смещения по Y" />
     <MESSAGE value="Рабочий билд до попыток залить на робота 02.04.20&#10;Улучшил графики, выключил их отрисовку" />
-    <option name="LAST_COMMIT_MESSAGE" value="Рабочий билд до попыток залить на робота 02.04.20&#10;Улучшил графики, выключил их отрисовку" />
+    <MESSAGE value="First commit Pi brunch. plt remove" />
+    <option name="LAST_COMMIT_MESSAGE" value="First commit Pi brunch. plt remove" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2" timestamp="1585834256472">
+    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2" timestamp="1585840731772">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1585834256472" />
+    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1585840731772" />
     <state x="747" y="258" width="424" height="478" key="FileChooserDialogImpl" timestamp="1585834353366">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
@@ -147,9 +156,9 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="453" y="135" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1582725960474" />
-    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2" timestamp="1585834273430">
+    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2" timestamp="1585840748199">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2/67.27.1853.1053@67.27.1853.1053" timestamp="1585834273430" />
+    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2/67.27.1853.1053@67.27.1853.1053" timestamp="1585840748199" />
   </component>
 </project>
