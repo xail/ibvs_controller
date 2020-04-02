@@ -5,9 +5,11 @@ import ros2connect.gazebo_connect as r2c
 import cv2 as cv
 import rclpy
 import keyboard
+from os.path import expanduser
 
+home = expanduser("~")
 img_filename = 'Obj.png'
-folder = '/home/xail/resources/'
+folder = home + '/resources/'
 
 
 def main(args=None):

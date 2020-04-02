@@ -3,8 +3,11 @@ import cv2 as cv
 import controller.bfmtch as bf
 import controller.features_extr as fe
 import matplotlib.pyplot as plt
+from os.path import expanduser
 
-folder = '/home/xail/resources/'
+home = expanduser("~")
+
+folder = home + '/resources/'
 acc = 0.8
 
 
@@ -13,7 +16,7 @@ class ControlLaw(object):
     kp_des = []
     desc_des = []
 
-    def __init__(self, lmbd=1, img_filename='Obj.png', folder='/home/xail/resources/', detector=cv.AKAZE_create(),
+    def __init__(self, lmbd=1, img_filename='Obj.png', folder=folder, detector=cv.AKAZE_create(),
                  velGraph=False, DOF=2):
         self.detector = detector
         self.lmbd = lmbd
@@ -25,6 +28,9 @@ class ControlLaw(object):
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         self.kp_des, self.desc_des = self.detector.detectAndCompute(gray, None)
         if velGraph is True:
+            plt.rcParams.update({'font.size': 20})
+
+            plt.figure(figsize=(12, 7))
             plt.axis([0, 100, 0, 1])
             self.i = 0
             if DOF == 2:
@@ -98,7 +104,7 @@ class ControlLaw(object):
             self.stop = True
         if self.velGraph is True:
             if self.DOF == 2:
-                self.y[0].append(v[0][0])
+                self.y[0].append(-v[0][0])
                 self.y[1].append(v[1][0])
             self.i += 1
 
@@ -109,7 +115,7 @@ class ControlLaw(object):
             if len(self.y[0]) > 0:
                 t = range(0, len(self.y[0]))
                 #print(self.y[0])
-                plt.plot(t, self.y[0])
+                plt.plot(t, self.y[0], color='black')
                 plt.gca().set_xlabel('t, с')
                 plt.gca().set_ylabel('v, м/с')
                 plt.gca().set_xlim(left=0, right=len(self.y[0]))
@@ -118,6 +124,7 @@ class ControlLaw(object):
                 #plt.gca().lines[0].set_ydata(self.y[0])
                 #plt.gca().relim()
                 #plt.gca().autoscale_view()
+                plt.savefig(folder + 'v.eps')
                 plt.savefig(folder + 'v.pdf')
                 plt.close()
 
@@ -125,7 +132,7 @@ class ControlLaw(object):
         if self.velGraph is True:
             if len(self.y[1]) > 0:
                 t = range(0, len(self.y[1]))
-                plt.plot(t, self.y[1])
+                plt.plot(t, self.y[1], color='black')
                 plt.gca().set_xlabel('t, с')
                 plt.gca().set_ylabel('omega, рад/с')
                 plt.gca().set_xlim(left=0, right=len(self.y[1]))

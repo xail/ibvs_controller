@@ -2,18 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d4933d25-73f1-4a43-a8c9-4918bb4ca355" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/xail.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/ibvs_controller.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controller/CL_class.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/CL_class.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/bfmtch.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/bfmtch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controller/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/features_extr.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/features_extr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ros2connect/gazebo_connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/ros2connect/gazebo_connect.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +19,12 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1SedA9yivfnP47vVDlGurT97oHn" />
@@ -80,6 +77,14 @@
       <option name="presentableId" value="Default" />
       <updated>1571927848942</updated>
     </task>
+    <task id="LOCAL-00001" summary="Рабочий билд до попыток залить на робота 26.02.20&#10;Добавлено смещение по оси X, но нет смещения по Y">
+      <created>1582731002595</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1582731002595</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -99,8 +104,14 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/.." />
     </ignored-roots>
+    <MESSAGE value="Рабочий билд до попыток залить на робота 26.02.20&#10;Добавлено смещение по оси X, но нет смещения по Y" />
+    <option name="LAST_COMMIT_MESSAGE" value="Рабочий билд до попыток залить на робота 26.02.20&#10;Добавлено смещение по оси X, но нет смещения по Y" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2" timestamp="1582731002530">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1582731002530" />
     <state x="747" y="258" width="424" height="478" key="FileChooserDialogImpl" timestamp="1582135213812">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
@@ -125,5 +136,9 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="453" y="135" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1582725960474" />
+    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2" timestamp="1582731065195">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2/67.27.1853.1053@67.27.1853.1053" timestamp="1582731065195" />
   </component>
 </project>
