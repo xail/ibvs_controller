@@ -2,7 +2,6 @@ import numpy as np
 import cv2 as cv
 import controller.bfmtch as bf
 import controller.features_extr as fe
-import matplotlib.pyplot as plt
 from os.path import expanduser
 
 home = expanduser("~")
@@ -17,26 +16,15 @@ class ControlLaw(object):
     desc_des = []
 
     def __init__(self, lmbd=1, img_filename='Obj.png', folder=folder, detector=cv.AKAZE_create(),
-                 velGraph=False, DOF=2):
+                 DOF=2):
         self.detector = detector
         self.lmbd = lmbd
-        self.velGraph = velGraph
         self.DOF = DOF
         self.stop = False
         self.error = False
         img = cv.imread(folder + img_filename)
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         self.kp_des, self.desc_des = self.detector.detectAndCompute(gray, None)
-        if velGraph is True:
-            plt.rcParams.update({'font.size': 20})
-
-            plt.figure(figsize=(12, 7))
-            plt.axis([0, 100, 0, 1])
-            self.i = 0
-            if DOF == 2:
-                self.y = [[] for i in range(2)]
-            else:
-                self.y = [[] for i in range(6)]
 
     @staticmethod
     def __l(x, y, z):
@@ -102,40 +90,5 @@ class ControlLaw(object):
         # end point check by accuracy
         if curr_acc > acc:
             self.stop = True
-        if self.velGraph is True:
-            if self.DOF == 2:
-                self.y[0].append(-v[0][0])
-                self.y[1].append(v[1][0])
-            self.i += 1
 
         return v
-
-    def plotVel_2DOF_v(self):
-        if self.velGraph is True:
-            if len(self.y[0]) > 0:
-                t = range(0, len(self.y[0]))
-                #print(self.y[0])
-                plt.plot(t, self.y[0], color='black')
-                plt.gca().set_xlabel('t, с')
-                plt.gca().set_ylabel('v, м/с')
-                plt.gca().set_xlim(left=0, right=len(self.y[0]))
-                plt.gca().set_ylim(bottom=min(self.y[0]), top=max(self.y[0]))
-                #plt.gca().lines[0].set_xdata(t)
-                #plt.gca().lines[0].set_ydata(self.y[0])
-                #plt.gca().relim()
-                #plt.gca().autoscale_view()
-                plt.savefig(folder + 'v.eps')
-                plt.savefig(folder + 'v.pdf')
-                plt.close()
-
-    def plotVel_2DOF_omega(self):
-        if self.velGraph is True:
-            if len(self.y[1]) > 0:
-                t = range(0, len(self.y[1]))
-                plt.plot(t, self.y[1], color='black')
-                plt.gca().set_xlabel('t, с')
-                plt.gca().set_ylabel('omega, рад/с')
-                plt.gca().set_xlim(left=0, right=len(self.y[1]))
-                plt.gca().set_ylim(bottom=min(self.y[0]), top=max(self.y[1]))
-                plt.savefig(folder + 'omega.pdf')
-                plt.close()

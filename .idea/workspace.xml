@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d4933d25-73f1-4a43-a8c9-4918bb4ca355" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/CL_class.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/CL_class.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/controller.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +23,11 @@
         <option name="title" value="All" />
       </GitPushTagMode>
     </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1SedA9yivfnP47vVDlGurT97oHn" />
@@ -35,7 +38,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="/opt/ros/dashing/lib/python3.6/site-packages" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pi_controller" />
     <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RunManager">
@@ -84,7 +87,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582731002595</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Рабочий билд до попыток залить на робота 02.04.20&#10;Улучшил графики, выключил их отрисовку">
+      <created>1585834256993</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1585834256993</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -105,17 +115,18 @@
       <path value="$PROJECT_DIR$/.." />
     </ignored-roots>
     <MESSAGE value="Рабочий билд до попыток залить на робота 26.02.20&#10;Добавлено смещение по оси X, но нет смещения по Y" />
-    <option name="LAST_COMMIT_MESSAGE" value="Рабочий билд до попыток залить на робота 26.02.20&#10;Добавлено смещение по оси X, но нет смещения по Y" />
+    <MESSAGE value="Рабочий билд до попыток залить на робота 02.04.20&#10;Улучшил графики, выключил их отрисовку" />
+    <option name="LAST_COMMIT_MESSAGE" value="Рабочий билд до попыток залить на робота 02.04.20&#10;Улучшил графики, выключил их отрисовку" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2" timestamp="1582731002530">
+    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2" timestamp="1585834256472">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1582731002530" />
-    <state x="747" y="258" width="424" height="478" key="FileChooserDialogImpl" timestamp="1582135213812">
+    <state x="568" y="44" width="782" height="906" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1585834256472" />
+    <state x="747" y="258" width="424" height="478" key="FileChooserDialogImpl" timestamp="1585834353366">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="747" y="258" width="424" height="478" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1582135213812" />
+    <state x="747" y="258" width="424" height="478" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1585834353366" />
     <state width="1634" height="280" key="GridCell.Tab.0.bottom" timestamp="1582138810216">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
@@ -136,9 +147,9 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="453" y="135" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1582725960474" />
-    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2" timestamp="1582731065195">
+    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2" timestamp="1585834273430">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2/67.27.1853.1053@67.27.1853.1053" timestamp="1582731065195" />
+    <state x="559" y="236" width="800" height="522" key="Vcs.Push.Dialog.v2/67.27.1853.1053@67.27.1853.1053" timestamp="1585834273430" />
   </component>
 </project>

@@ -22,12 +22,11 @@ def main(args=None):
     #if img is None:
     #    rclpy.spin_once(subscriber)
     #    img = subscriber.img
-    Plot = False
     lmbda = 3
     accuracy = 0.01
 
     #cl = Cc.ControlLaw(lmbda)
-    cl = Cc.ControlLaw(lmbda, detector=cv.AKAZE_create(), velGraph=Plot)
+    cl = Cc.ControlLaw(lmbda, detector=cv.AKAZE_create())
     if len(cl.kp_des) > 0:
         rclpy.spin_once(subscriber)
         img_new = subscriber.img
@@ -50,9 +49,6 @@ def main(args=None):
     else:
         print("Bad init image. Desired key points vector is empty")
     stop(publisher)
-    if Plot is True:
-        cl.plotVel_2DOF_v()
-        cl.plotVel_2DOF_omega()
     subscriber.destroy_node()
     publisher.destroy_node()
     rclpy.shutdown()
