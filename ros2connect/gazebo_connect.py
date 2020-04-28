@@ -1,9 +1,11 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
+import ros1_bridge as r1
 
 import numpy as np
 import geometry_msgs.msg as gm
+import gazebo_msgs.msg as gz
 import sensor_msgs.msg as sm
 from cv_bridge import CvBridge
 
@@ -68,19 +70,22 @@ class SpeedPublisher(Node):
             self.pub_vel_robot_coord()
 
 
-
 class SpeedSubscriber(Node):
 
-    def __init__(self):
+    def __init__(self, robot_namespace=''):
         super().__init__('minimal_subscriber')
         self.subscription = self.create_subscription(
-            gm.ModelState,
-            '/twist',
+            gz.ModelStates,
+            robot_namespace + '/gazebo/model_states',
             self.listener_callback, 10)
         self.subscription  # prevent unused variable warning
+        self.linear_x = 0
+        self.angular_w = 0
 
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % str(msg.twist.linear.x))
+        print(len(msg.twist))
+        self.linear_x = msg.twist[1].linear.x
+        self.angular_w = msg.twist[1].angular.z
 
 
 class CameraSubscriber(Node):

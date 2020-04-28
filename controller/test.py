@@ -1,8 +1,18 @@
 import numpy as np
+import ros2connect.gazebo_connect as gc
+import rclpy
 
-x = 1
-y = 1
-z = 1
-l = [[-1 / z, 0, x / z, x * y, -(1 + np.power(x, 2)), y],
-            [0, -1 / z, y / z, 1 + np.power(y, 2), -x * y, -x]]
-print(l)
+
+def test(args=None):
+    rclpy.init(args=args)
+    sub = gc.SpeedSubscriber()
+    rclpy.spin_once(sub)
+    rclpy.spin_once(sub)
+    print('v_x = ', sub.linear_x)
+    print('w_z =', sub.angular_w)
+    sub.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__test__':
+    test()
