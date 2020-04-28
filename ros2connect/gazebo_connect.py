@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-import ros1_bridge as r1
+from rosgraph_msgs.msg import Clock
 
 import numpy as np
 import geometry_msgs.msg as gm
@@ -70,6 +70,21 @@ class SpeedPublisher(Node):
             self.pub_vel_robot_coord()
 
 
+class ClockSubscriber(Node):
+
+    def __init__(self):
+        super().__init__('minimal_subscriber')
+        self.subscription = self.create_subscription(
+            Clock,
+            '/clock',
+            self.listener_callback, 10)
+        self.subscription  # prevent unused variable warning
+        self.clock = 0
+
+    def listener_callback(self, msg):
+        self.clock = msg.clock.sec
+
+
 class SpeedSubscriber(Node):
 
     def __init__(self, robot_namespace=''):
@@ -79,11 +94,10 @@ class SpeedSubscriber(Node):
             robot_namespace + '/gazebo/model_states',
             self.listener_callback, 10)
         self.subscription  # prevent unused variable warning
-        self.linear_x = 0
-        self.angular_w = 0
+        self.linear_x = 0.
+        self.angular_w = 0.
 
     def listener_callback(self, msg):
-        print(len(msg.twist))
         self.linear_x = msg.twist[1].linear.x
         self.angular_w = msg.twist[1].angular.z
 
