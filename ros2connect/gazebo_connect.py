@@ -1,7 +1,9 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
+from std_msgs.msg import Float64MultiArray
 from rosgraph_msgs.msg import Clock
+from nav_msgs.msg import Odometry
 
 import numpy as np
 import geometry_msgs.msg as gm
@@ -85,13 +87,12 @@ class ClockSubscriber(Node):
         self.clock = msg.clock.sec
 
 
-class SpeedSubscriber(Node):
+class GazeboSpeedSubscriber(Node):
 
     def __init__(self, robot_namespace=''):
         super().__init__('minimal_subscriber')
         self.subscription = self.create_subscription(
-            gz.ModelStates,
-            robot_namespace + '/gazebo/model_states',
+            gz.ModelStates, '/gazebo/model_states',
             self.listener_callback, 10)
         self.subscription  # prevent unused variable warning
         self.linear_x = 0.
@@ -131,3 +132,34 @@ class TestPub(Node):
         msg.data = "OMGOMG"
         self.publisher_.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
+
+
+class EffortPublisher(Node):
+
+    def __init__(self, robot_namespace=''):
+        super().__init__('effort_publisher', namespace=robot_namespace)
+        self.publisher_ = self.create_publisher(Float64MultiArray, 'effort_group_controller/command', 10)
+        self.pub(0, 0)
+
+    def pub(self, left, right):
+        __msg = Float64MultiArray()
+        #array = np.array([0.005, 0.005], dtype=np.float64)
+        __msg.data = [np.float64(left), np.float64(right)]
+        #__msg.data = array
+        self.publisher_.publish(__msg)
+
+
+class SpeedSubscriber(Node):
+
+    def __init__(self, robot_namespace=''):
+        super().__init__('speed_subscriber', namespace=robot_namespace)
+        self.subscription = self.create_subscription(
+            Odometry,
+            'odom',
+            self.listener_callback, 10)
+        self.subscription  # prevent unused variable warning
+        self.vel = Odometry().twist.twist
+
+    def listener_callback(self, msg):
+        self.vel = msg.twist.twist
+
