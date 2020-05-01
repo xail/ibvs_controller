@@ -4,10 +4,12 @@ from os.path import expanduser
 home = expanduser("~")
 
 
-def plotVel(v, t, name='v', folder=home + '/resources/', eps=True, linear=True):
+def plotVel(v, t, name='v', folder=home + '/resources/', eps=True, linear=True, zeroStartTime=True):
     if len(v) > 0:
         if len(v) != len(t):
             t = t[0, len(v)]
+        if zeroStartTime:
+            t = [i - t[0] for i in t]
         plt.plot(t, v, color='black')
         plt.gca().set_xlabel('t, с')
         if linear:

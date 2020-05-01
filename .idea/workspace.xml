@@ -3,8 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="d4933d25-73f1-4a43-a8c9-4918bb4ca355" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/graph.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controller/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ros2connect/gazebo_connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/ros2connect/gazebo_connect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

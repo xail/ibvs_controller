@@ -4,6 +4,7 @@ from std_msgs.msg import String
 from std_msgs.msg import Float64MultiArray
 from rosgraph_msgs.msg import Clock
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import JointState
 
 import numpy as np
 import geometry_msgs.msg as gm
@@ -81,10 +82,10 @@ class ClockSubscriber(Node):
             '/clock',
             self.listener_callback, 10)
         self.subscription  # prevent unused variable warning
-        self.clock = 0
+        self.clock = Clock().clock.sec
 
     def listener_callback(self, msg):
-        self.clock = msg.clock.sec
+        self.clock = msg.clock.sec + msg.clock.nanosec/(pow(10,9))
 
 
 class GazeboSpeedSubscriber(Node):
@@ -141,9 +142,13 @@ class EffortPublisher(Node):
         self.publisher_ = self.create_publisher(Float64MultiArray, 'effort_group_controller/command', 10)
         self.pub(0, 0)
 
-    def pub(self, left, right):
+    def pub(self, left, right, max_left=0.05, max_right=100):
         __msg = Float64MultiArray()
         #array = np.array([0.005, 0.005], dtype=np.float64)
+        if abs(left) > max_left:
+            left = max_left * np.sign(left)
+        if abs(right) > max_right:
+            right = max_right * np.sign(right)
         __msg.data = [np.float64(left), np.float64(right)]
         #__msg.data = array
         self.publisher_.publish(__msg)
@@ -162,4 +167,19 @@ class SpeedSubscriber(Node):
 
     def listener_callback(self, msg):
         self.vel = msg.twist.twist
+
+
+class JointSubscriber(Node):
+
+    def __init__(self, robot_namespace=''):
+        super().__init__('speed_subscriber', namespace=robot_namespace)
+        self.subscription = self.create_subscription(
+            JointState,
+            'joint_states',
+            self.listener_callback, 10)
+        self.subscription  # prevent unused variable warning
+        self.joint_state = JointState()
+
+    def listener_callback(self, msg):
+        self.joint_state = msg
 
