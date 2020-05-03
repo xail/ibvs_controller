@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 from os.path import expanduser
+import numpy as np
+import scipy.io
 
 home = expanduser("~")
 
@@ -23,3 +25,12 @@ def plotVel(v, t, name='v', folder=home + '/resources/', eps=True, linear=True, 
         else:
             plt.savefig(folder + name + '.pdf')
         plt.close()
+
+
+def save_matlab(list_of_input, list_of_output, time, name='mtlb_data', folder=home + '/resources/matlab/'):
+    input1 = np.asarray(list_of_input[0])
+    input2 = np.asarray(list_of_input[1])
+    output1 = np.asarray(list_of_output[0])
+    output2 = np.asarray(list_of_output[1])
+    t = np.asarray(time)
+    scipy.io.savemat(folder + name + '.mat', mdict={'input1': input1, 'input2': input2, 'output1': output1, 'output2': output2, 'time': t})

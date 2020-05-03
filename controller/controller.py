@@ -54,6 +54,69 @@ def main(args=None):
     rclpy.shutdown()
 
 
+def effort_control(args=None):
+    rclpy.init(args=args)
+    robot_namespace = '/predator'
+    cam_sub = r2c.CameraSubscriber()
+    sub_clock = r2c.ClockSubscriber()
+    odom = r2c.PoseSubscriber(robot_namespace)
+    sub_joint = r2c.JointSubscriber(robot_namespace)
+    eff_pub = r2c.EffortPublisher(robot_namespace=robot_namespace)
+    pose_clock_exec = rclpy.executors.MultiThreadedExecutor(num_threads=2)
+    pose_clock_exec.add_node(sub_clock)
+    pose_clock_exec.add_node(odom)
+    #img = cv.imread(folder + img_filename)
+    #if img is None:
+    #    rclpy.spin_once(subscriber)
+    #    img = subscriber.img
+    fr = 0.001  # coefficient of friction
+    t_prev = 0
+    z_e_prev = 0
+    z_mu_prev = 0
+    z_nu_prev = 0
+    accuracy = 0.01
+
+    #cl = Cc.ControlLaw(lmbda)
+    cl = Cc.ControlLaw(detector=cv.ORB_create())
+    if len(cl.kp_des) > 0:
+        rclpy.spin_once(cam_sub)
+        pose_clock_exec.spin_once()
+        img_new = cam_sub.img
+        eff_buff, z_mu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, sub_clock.clock - t_prev, odom.nu, z_nu_prev, z_e_prev,
+                                                          z_mu_prev)
+        t_prev = sub_clock.clock
+        rclpy.spin_once(sub_joint)
+        eff_pub.pub(eff_buff[0] - fr * sub_joint.joint_state.velocity[0],
+                    eff_buff[1] - fr * sub_joint.joint_state.velocity[0])
+
+        while cl.stop is False:
+            rclpy.spin_once(cam_sub)
+            img_new = cam_sub.img
+            if img_new is None:
+                print('No image')
+                break
+            pose_clock_exec.spin_once()
+            eff_buff, z_mu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, sub_clock.clock - t_prev, odom.nu, z_nu_prev,
+                                                              z_e_prev,
+                                                              z_mu_prev)
+            t_prev = sub_clock.clock
+            rclpy.spin_once(sub_joint)
+            eff_pub.pub(eff_buff[0] - fr * sub_joint.joint_state.velocity[0],
+                        eff_buff[1] - fr * sub_joint.joint_state.velocity[0])
+        if cl.error is False:
+            print('End point, no errors')
+    else:
+        print("Bad init image. Desired key points vector is empty")
+    eff_pub.pub(0.0, 0.0)
+    cam_sub.destroy_node()
+    sub_clock.destroy_node()
+    odom.destroy_node()
+    pose_clock_exec.shutdown()
+    eff_pub.destroy_node()
+    sub_joint.destroy_node()
+    rclpy.shutdown()
+
+
 def capture(args=None):
     rclpy.init(args=args)
 

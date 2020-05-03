@@ -5,6 +5,7 @@ from std_msgs.msg import Float64MultiArray
 from rosgraph_msgs.msg import Clock
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
+from scipy.spatial.transform import Rotation as R
 
 import numpy as np
 import geometry_msgs.msg as gm
@@ -142,7 +143,7 @@ class EffortPublisher(Node):
         self.publisher_ = self.create_publisher(Float64MultiArray, 'effort_group_controller/command', 10)
         self.pub(0, 0)
 
-    def pub(self, left, right, max_left=0.05, max_right=100):
+    def pub(self, left, right, max_left=0.05, max_right=0.05):
         __msg = Float64MultiArray()
         #array = np.array([0.005, 0.005], dtype=np.float64)
         if abs(left) > max_left:
@@ -167,6 +168,26 @@ class SpeedSubscriber(Node):
 
     def listener_callback(self, msg):
         self.vel = msg.twist.twist
+
+
+class PoseSubscriber(Node):
+
+    def __init__(self, robot_namespace=''):
+        super().__init__('speed_subscriber', namespace=robot_namespace)
+        self.subscription = self.create_subscription(
+            Odometry,
+            'odom',
+            self.listener_callback, 10)
+        self.subscription  # prevent unused variable warning
+        self.pose = Odometry().pose.pose
+        self.euler = np.zeros(3)
+        self.nu = np.zeros(3)
+
+    def listener_callback(self, msg):
+        self.pose = msg.pose.pose
+        r = R.from_quat(self.pose.orientation)
+        self.euler = r.as_euler('zyx')
+        self.nu = np.asarray([self.pose.position.x, self.pose.position.y, self.euler[0]])
 
 
 class JointSubscriber(Node):

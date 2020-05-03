@@ -171,19 +171,22 @@ def test3(args=None):
     vel_clock_exec = rclpy.executors.MultiThreadedExecutor(num_threads=2)
     vel_clock_exec.add_node(sub_clock)
     vel_clock_exec.add_node(sub_vel)
-    v = []
-    t = []
+    v_start = []
+    w_start = []
+    t_start = []
     v_stop = []
+    w_stop = []
     t_stop = []
-    left = 0.0016 *2
-    right = 0.0023 *2
+    m_left_start = []
+    m_right_start = []
+    m_left_stop = []
+    m_right_stop = []
+    left = 0.0016 * 4
+    right = 0.0023 * 4
     step = 0.0001
     k = 0.001
     nu = 0.0001
     #time.sleep(10)
-    vel_clock_exec.spin_once()
-    v.append(sub_vel.vel.linear.x)
-    t.append(sub_clock.clock)
     eff_pub.pub(left, right)
     #print(sub_vel.vel.angular)
     while sub_vel.vel.linear.x < 0.9546 or abs(sub_vel.vel.angular.z) > 0.01:
@@ -196,25 +199,34 @@ def test3(args=None):
         eff_pub.pub(left_frict, right_frict)
         time.sleep(0.05)
         vel_clock_exec.spin_once()
-        v.append(sub_vel.vel.linear.x)
-        print(sub_vel.vel.linear.x)
-        t.append(sub_clock.clock)
+        v_start.append(sub_vel.vel.linear.x)
+        w_start.append(sub_vel.vel.angular.z)
+        t_start.append(sub_clock.clock)
+        m_left_start.append(left)
+        m_right_start.append(right)
     eff_pub.pub(0.0, 0.0)
     while sub_vel.vel.linear.x > 0:
+        rclpy.spin_once(sub_joint)
         left_frict = -nu * sub_joint.joint_state.velocity[0]
         right_frict = -nu * sub_joint.joint_state.velocity[1]
         eff_pub.pub(left_frict, right_frict)
         vel_clock_exec.spin_once()
         v_stop.append(sub_vel.vel.linear.x)
+        # w_stop.append(sub_vel.vel.angular.z)
         t_stop.append(sub_clock.clock)
+        # m_left_stop.append(left_frict)
+        # m_right_stop.append(right_frict)
         time.sleep(0.05)
     eff_pub.pub(0.0, 0.0)
-    gr.plotVel(v, t, name='vel_start')
-    gr.plotVel(v_stop, t_stop, name='vel_stop')
+    gr.save_matlab([m_left_start, m_right_start], [v_start, w_start], t_start, name='exp2')
+    #gr.save_matlab([m_left_stop, m_right_stop], [v_stop, w_stop], t_stop, name='exp2')
+    gr.plotVel(v_start, t_start, name='vel_start_2')
+    gr.plotVel(v_stop, t_stop, name='vel_stop_2')
     sub_clock.destroy_node()
     sub_vel.destroy_node()
     vel_clock_exec.shutdown()
     eff_pub.destroy_node()
+    sub_joint.destroy_node()
     rclpy.shutdown()
 
 
