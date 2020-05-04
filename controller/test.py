@@ -12,7 +12,7 @@ folder = home + '/resources/'
 
 
 def test(args=None):
-    robot_namespace = '/turtlebot'
+    robot_namespace = '/predator'
     rclpy.init(args=args)
     sub_clock = gc.ClockSubscriber()
     sub_vel = gc.SpeedSubscriber(robot_namespace)
@@ -162,7 +162,7 @@ def test2(args=None):
 
 
 def test3(args=None):
-    robot_namespace = '/turtlebot'
+    robot_namespace = '/predator'
     rclpy.init(args=args)
     sub_clock = gc.ClockSubscriber()
     sub_vel = gc.SpeedSubscriber(robot_namespace)
@@ -231,7 +231,7 @@ def test3(args=None):
 
 
 def stop(args=None):
-    robot_namespace = '/turtlebot'
+    robot_namespace = '/predator'
     rclpy.init(args=args)
     eff_pub = gc.EffortPublisher(robot_namespace=robot_namespace)
     eff_pub.pub(0.0, 0.0)

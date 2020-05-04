@@ -38,3 +38,15 @@ def F_1_0(nu, K_1=K_1_def):
 
 def R(nu):
     return np.asarray([[np.cos(nu[2]), 0.0], [np.sin(nu[2]), 0.0], [0.0, 1.0]])
+
+
+L = np.zeros([52, 2])
+z_e_prev = None
+z_mu_prev = np.zeros(2)
+z_nu_prev = np.zeros(3)
+dt = 1.0
+nu = np.array([0, 0, 0])
+
+
+m, z_nu, z_e, z_mu = Reg(dt, nu, L, z_nu_prev, z_e_prev, z_mu_prev)
+print(m)

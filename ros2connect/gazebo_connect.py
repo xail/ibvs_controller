@@ -107,11 +107,11 @@ class GazeboSpeedSubscriber(Node):
 
 class CameraSubscriber(Node):
 
-    def __init__(self, robot_namespace='', cam_ns='/camera1'):
-        super().__init__('minimal_subscriber')
+    def __init__(self, robot_namespace='', cam_ns='/camera'):
+        super().__init__('cam_subscriber')
         self.subscription = self.create_subscription(
             sm.Image,
-            robot_namespace + cam_ns + '/image_raw',
+            robot_namespace + cam_ns + '/rgb/image_raw',
             self.listener_callback, 10)
         self.img = np.zeros((480, 640, 1), np.uint8)
         self.subscription  # prevent unused variable warning
@@ -173,7 +173,7 @@ class SpeedSubscriber(Node):
 class PoseSubscriber(Node):
 
     def __init__(self, robot_namespace=''):
-        super().__init__('speed_subscriber', namespace=robot_namespace)
+        super().__init__('pose_subscriber', namespace=robot_namespace)
         self.subscription = self.create_subscription(
             Odometry,
             'odom',
@@ -193,7 +193,7 @@ class PoseSubscriber(Node):
 class JointSubscriber(Node):
 
     def __init__(self, robot_namespace=''):
-        super().__init__('speed_subscriber', namespace=robot_namespace)
+        super().__init__('joint_subscriber', namespace=robot_namespace)
         self.subscription = self.create_subscription(
             JointState,
             'joint_states',

@@ -34,6 +34,7 @@ setup(
             'capture = controller.controller:capture',
             'move_predator = controller.controller:move_predator',
             'chase_key = controller.controller:chase_key',
+            'effort_control = controller.controller:effort_control',
             'test = controller.test:test',
             'test2 = controller.test:test2',
             'test3 = controller.test:test3',

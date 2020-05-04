@@ -94,7 +94,7 @@ class ControlLaw(object):
 
         return v
 
-    def eff(self, img, dt, nu, z_e_pref, z_mu_pref, l_type=0):
+    def eff(self, img, dt, nu, z_nu_prev, z_e_prev, z_mu_prev, l_type=0):
         z = np.full(len(self.kp_des), 0.5)
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         kp_img, desc_img = self.detector.detectAndCompute(gray, None)
@@ -114,9 +114,9 @@ class ControlLaw(object):
         width, height = img.shape[:2]
         s = fe.kp_to_s(valid_kp_img, width/2)
         s_des = fe.kp_to_s(valid_kp_des, width/2)
-        lx_apr = np.linalg.pinv(self.__lx(s, z))
+        lx_apr = self.__lx(s, z)
         z *= z_scale
-        lx = np.linalg.pinv(self.__lx(s, z))
+        lx = self.__lx(s, z)
         lx_sum = (lx + lx_apr)/2
         s_temp = np.reshape(s - s_des, (-1, 1))
         if l_type == 1:
@@ -125,9 +125,15 @@ class ControlLaw(object):
             l_mat = lx_sum
         else:
             l_mat = lx_apr
-        m = er.Reg(dt, nu, l_mat, z_e_pref, z_mu_pref)
+        if z_e_prev is not None:
+            if len(z_e_prev) > len(l_mat):
+                z_e_prev = z_e_prev[0:len(l_mat)]
+            elif len(z_e_prev) > len(l_mat):
+                l_mat = l_mat[0:len(z_e_prev)]
+        m, z_nu, z_e, z_mu = er.Reg(dt, nu, l_mat, z_nu_prev, z_e_prev, z_mu_prev)
+        print(m)
         # end point check by accuracy
         if curr_acc > acc:
             self.stop = True
 
-        return m
+        return m, z_nu, z_e, z_mu

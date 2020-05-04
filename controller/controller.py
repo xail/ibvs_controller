@@ -57,7 +57,7 @@ def main(args=None):
 def effort_control(args=None):
     rclpy.init(args=args)
     robot_namespace = '/predator'
-    cam_sub = r2c.CameraSubscriber()
+    cam_sub = r2c.CameraSubscriber(robot_namespace)
     sub_clock = r2c.ClockSubscriber()
     odom = r2c.PoseSubscriber(robot_namespace)
     sub_joint = r2c.JointSubscriber(robot_namespace)
@@ -71,9 +71,9 @@ def effort_control(args=None):
     #    img = subscriber.img
     fr = 0.001  # coefficient of friction
     t_prev = 0
-    z_e_prev = 0
-    z_mu_prev = 0
-    z_nu_prev = 0
+    z_e_prev = None
+    z_mu_prev = np.zeros(2)
+    z_nu_prev = np.zeros(3)
     accuracy = 0.01
 
     #cl = Cc.ControlLaw(lmbda)
@@ -82,7 +82,8 @@ def effort_control(args=None):
         rclpy.spin_once(cam_sub)
         pose_clock_exec.spin_once()
         img_new = cam_sub.img
-        eff_buff, z_mu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, sub_clock.clock - t_prev, odom.nu, z_nu_prev, z_e_prev,
+        eff_buff, z_nu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, sub_clock.clock - t_prev, odom.nu, z_nu_prev,
+                                                          z_e_prev,
                                                           z_mu_prev)
         t_prev = sub_clock.clock
         rclpy.spin_once(sub_joint)
@@ -105,6 +106,8 @@ def effort_control(args=None):
                         eff_buff[1] - fr * sub_joint.joint_state.velocity[0])
         if cl.error is False:
             print('End point, no errors')
+        else:
+            print('ERRORS')
     else:
         print("Bad init image. Desired key points vector is empty")
     eff_pub.pub(0.0, 0.0)
@@ -119,8 +122,8 @@ def effort_control(args=None):
 
 def capture(args=None):
     rclpy.init(args=args)
-
-    subscriber = r2c.CameraSubscriber()
+    robot_namespace = '/predator'
+    subscriber = r2c.CameraSubscriber(robot_namespace)
     rclpy.spin_once(subscriber)
     img = subscriber.img
     while img is None:
@@ -227,6 +230,7 @@ def chase_key(args=None):
     publisher.destroy_node()
     rclpy.shutdown()
 
+
 if __name__ == '__main__':
     main()
 
@@ -238,3 +242,8 @@ if __name__ == '__move_predator__':
 
 if __name__ == '__chase_key__':
     chase_key()
+
+if __name__ == '__effort_control__':
+    effort_control()
+
+
