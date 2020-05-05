@@ -5,6 +5,7 @@ import ros2connect.gazebo_connect as r2c
 import cv2 as cv
 import rclpy
 import keyboard
+import time
 from os.path import expanduser
 
 home = expanduser("~")
@@ -59,7 +60,8 @@ def effort_control(args=None):
     robot_namespace = '/predator'
     cam_sub = r2c.CameraSubscriber(robot_namespace)
     sub_clock = r2c.ClockSubscriber()
-    odom = r2c.PoseSubscriber(robot_namespace)
+    #odom = r2c.PoseSubscriber(robot_namespace)
+    odom = r2c.SpeedSubscriber(robot_namespace)
     sub_joint = r2c.JointSubscriber(robot_namespace)
     eff_pub = r2c.EffortPublisher(robot_namespace=robot_namespace)
     pose_clock_exec = rclpy.executors.MultiThreadedExecutor(num_threads=2)
@@ -70,7 +72,7 @@ def effort_control(args=None):
     #    rclpy.spin_once(subscriber)
     #    img = subscriber.img
     fr = 0.001  # coefficient of friction
-    t_prev = 0
+    t_prev = 0.
     z_e_prev = None
     z_mu_prev = np.zeros(2)
     z_nu_prev = np.zeros(3)
@@ -82,14 +84,18 @@ def effort_control(args=None):
         rclpy.spin_once(cam_sub)
         pose_clock_exec.spin_once()
         img_new = cam_sub.img
-        eff_buff, z_nu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, sub_clock.clock - t_prev, odom.nu, z_nu_prev,
-                                                          z_e_prev,
-                                                          z_mu_prev)
+        #print("clock=", sub_clock.clock)
+        #print("prev_clock=", t_prev)
+        dt = float(sub_clock.clock) - float(t_prev)
+        #eff_buff, z_nu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, dt, odom.nu, z_nu_prev,
+        #                                                  z_e_prev,
+        #                                                  z_mu_prev)
+        eff_buff = cl.simp_eff(img_new, odom.vel2)
         t_prev = sub_clock.clock
         rclpy.spin_once(sub_joint)
         eff_pub.pub(eff_buff[0] - fr * sub_joint.joint_state.velocity[0],
                     eff_buff[1] - fr * sub_joint.joint_state.velocity[0])
-
+        time.sleep(0.5)
         while cl.stop is False:
             rclpy.spin_once(cam_sub)
             img_new = cam_sub.img
@@ -97,13 +103,19 @@ def effort_control(args=None):
                 print('No image')
                 break
             pose_clock_exec.spin_once()
-            eff_buff, z_mu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, sub_clock.clock - t_prev, odom.nu, z_nu_prev,
-                                                              z_e_prev,
-                                                              z_mu_prev)
-            t_prev = sub_clock.clock
+            #print("clock=", sub_clock.clock)
+            #print("prev_clock=", t_prev)
+            dt = float(sub_clock.clock) - float(t_prev)
+            eff_buff = cl.simp_eff(img_new, odom.vel2)
+            # if dt > 0:
+            #     eff_buff, z_mu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, dt, odom.nu, z_nu_prev,
+            #                                                       z_e_prev,
+            #                                                       z_mu_prev)
+            #     t_prev = sub_clock.clock
             rclpy.spin_once(sub_joint)
             eff_pub.pub(eff_buff[0] - fr * sub_joint.joint_state.velocity[0],
                         eff_buff[1] - fr * sub_joint.joint_state.velocity[0])
+            time.sleep(0.5)
         if cl.error is False:
             print('End point, no errors')
         else:

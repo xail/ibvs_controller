@@ -103,14 +103,14 @@ class ControlLaw(object):
             print("No keypoints on this frame")
             self.error = True
             self.stop = True
-            return np.zeros(shape=(6, 1))
+            return np.zeros([2]), z_nu_prev, z_e_prev, z_mu_prev
         valid_kp_des, valid_kp_img, curr_acc, z_scale = bf.b_force(self.kp_des, self.desc_des, kp_img, desc_img)
         # no valid kp in frame error check
         if len(valid_kp_img) == 0:
             print("No valid keypoints on this frame")
             self.stop = True
             self.error = True
-            return np.zeros(shape=(6, 1))
+            return np.zeros([2]), z_nu_prev, z_e_prev, z_mu_prev
         width, height = img.shape[:2]
         s = fe.kp_to_s(valid_kp_img, width/2)
         s_des = fe.kp_to_s(valid_kp_des, width/2)
@@ -118,7 +118,7 @@ class ControlLaw(object):
         z *= z_scale
         lx = self.__lx(s, z)
         lx_sum = (lx + lx_apr)/2
-        s_temp = np.reshape(s - s_des, (-1, 1))
+        s_temp = np.reshape(s - s_des, (-1,))
         if l_type == 1:
             l_mat = lx
         elif l_type == 2:
@@ -128,12 +128,56 @@ class ControlLaw(object):
         if z_e_prev is not None:
             if len(z_e_prev) > len(l_mat):
                 z_e_prev = z_e_prev[0:len(l_mat)]
-            elif len(z_e_prev) > len(l_mat):
+            elif len(z_e_prev) < len(l_mat):
                 l_mat = l_mat[0:len(z_e_prev)]
+        else:
+            z_e_prev = s_temp
         m, z_nu, z_e, z_mu = er.Reg(dt, nu, l_mat, z_nu_prev, z_e_prev, z_mu_prev)
-        print(m)
         # end point check by accuracy
         if curr_acc > acc:
             self.stop = True
+        #print("z_nu =", z_nu)
+        #print("z_mu =", z_mu)
+        print(m)
+        return m*-0.01, z_nu, z_e, z_mu
 
-        return m, z_nu, z_e, z_mu
+    def simp_eff(self, img, v, l_type=0):
+        z = np.full(len(self.kp_des), 0.5)
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        kp_img, desc_img = self.detector.detectAndCompute(gray, None)
+        # no keypoints error check
+        if len(kp_img) == 0:
+            print("No keypoints on this frame")
+            self.error = True
+            self.stop = True
+            return np.zeros([2])
+        valid_kp_des, valid_kp_img, curr_acc, z_scale = bf.b_force(self.kp_des, self.desc_des, kp_img, desc_img)
+        # no valid kp in frame error check
+        if len(valid_kp_img) == 0:
+            print("No valid keypoints on this frame")
+            self.stop = True
+            self.error = True
+            return np.zeros([2])
+        width, height = img.shape[:2]
+        s = fe.kp_to_s(valid_kp_img, width/2)
+        s_des = fe.kp_to_s(valid_kp_des, width/2)
+        lx_apr = self.__lx(s, z)
+        z *= z_scale
+        lx = self.__lx(s, z)
+        lx_sum = (lx + lx_apr)/2
+        s_temp = np.reshape(s - s_des, (-1,))
+        if l_type == 1:
+            l_mat = lx
+        elif l_type == 2:
+            l_mat = lx_sum
+        else:
+            l_mat = lx_apr
+
+        m = er.SimpleReg(v, s_temp, l_mat)
+        # end point check by accuracy
+        if curr_acc > acc:
+            self.stop = True
+        #print("z_nu =", z_nu)
+        #print("z_mu =", z_mu)
+        print(m)
+        return m

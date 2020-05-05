@@ -77,16 +77,17 @@ class SpeedPublisher(Node):
 class ClockSubscriber(Node):
 
     def __init__(self):
-        super().__init__('minimal_subscriber')
+        super().__init__('clock_subscriber')
         self.subscription = self.create_subscription(
             Clock,
-            '/clock',
+            'clock',
             self.listener_callback, 10)
         self.subscription  # prevent unused variable warning
-        self.clock = Clock().clock.sec
+        self.clock = 0.0
 
     def listener_callback(self, msg):
-        self.clock = msg.clock.sec + msg.clock.nanosec/(pow(10,9))
+        self.clock = msg.clock.sec + (float(msg.clock.nanosec) / (pow(10, 9)))
+       # print(self.clock)
 
 
 class GazeboSpeedSubscriber(Node):
@@ -165,9 +166,11 @@ class SpeedSubscriber(Node):
             self.listener_callback, 10)
         self.subscription  # prevent unused variable warning
         self.vel = Odometry().twist.twist
+        self.vel2 = np.zeros(2)
 
     def listener_callback(self, msg):
         self.vel = msg.twist.twist
+        self.vel2 = np.asarray([self.vel.linear.x, self.vel.angular.z])
 
 
 class PoseSubscriber(Node):
@@ -185,8 +188,9 @@ class PoseSubscriber(Node):
 
     def listener_callback(self, msg):
         self.pose = msg.pose.pose
-        r = R.from_quat(self.pose.orientation)
-        self.euler = r.as_euler('zyx')
+        buff = R.from_quat([self.pose.orientation.x, self.pose.orientation.y,
+                            self.pose.orientation.z, self.pose.orientation.w])
+        self.euler = buff.as_euler('zyx')
         self.nu = np.asarray([self.pose.position.x, self.pose.position.y, self.euler[0]])
 
 

@@ -168,9 +168,9 @@ def test3(args=None):
     sub_vel = gc.SpeedSubscriber(robot_namespace)
     sub_joint = gc.JointSubscriber(robot_namespace)
     eff_pub = gc.EffortPublisher(robot_namespace=robot_namespace)
-    vel_clock_exec = rclpy.executors.MultiThreadedExecutor(num_threads=2)
-    vel_clock_exec.add_node(sub_clock)
-    vel_clock_exec.add_node(sub_vel)
+    #vel_clock_exec = rclpy.executors.MultiThreadedExecutor(num_threads=2)
+    #vel_clock_exec.add_node(sub_clock)
+    #vel_clock_exec.add_node(sub_vel)
     v_start = []
     w_start = []
     t_start = []
@@ -187,6 +187,8 @@ def test3(args=None):
     k = 0.001
     nu = 0.0001
     #time.sleep(10)
+    while sub_clock.clock == 0:
+        rclpy.spin_once(sub_clock)
     eff_pub.pub(left, right)
     #print(sub_vel.vel.angular)
     while sub_vel.vel.linear.x < 0.9546 or abs(sub_vel.vel.angular.z) > 0.01:
@@ -198,7 +200,8 @@ def test3(args=None):
         right_frict = right - nu * sub_joint.joint_state.velocity[1]
         eff_pub.pub(left_frict, right_frict)
         time.sleep(0.05)
-        vel_clock_exec.spin_once()
+        rclpy.spin_once(sub_clock)
+        rclpy.spin_once(sub_vel)
         v_start.append(sub_vel.vel.linear.x)
         w_start.append(sub_vel.vel.angular.z)
         t_start.append(sub_clock.clock)
@@ -210,7 +213,8 @@ def test3(args=None):
         left_frict = -nu * sub_joint.joint_state.velocity[0]
         right_frict = -nu * sub_joint.joint_state.velocity[1]
         eff_pub.pub(left_frict, right_frict)
-        vel_clock_exec.spin_once()
+        rclpy.spin_once(sub_clock)
+        rclpy.spin_once(sub_vel)
         v_stop.append(sub_vel.vel.linear.x)
         # w_stop.append(sub_vel.vel.angular.z)
         t_stop.append(sub_clock.clock)
@@ -224,7 +228,7 @@ def test3(args=None):
     gr.plotVel(v_stop, t_stop, name='vel_stop_2')
     sub_clock.destroy_node()
     sub_vel.destroy_node()
-    vel_clock_exec.shutdown()
+    #vel_clock_exec.shutdown()
     eff_pub.destroy_node()
     sub_joint.destroy_node()
     rclpy.shutdown()
