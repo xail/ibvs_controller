@@ -9,7 +9,13 @@ home = expanduser("~")
 
 folder = home + '/resources/'
 acc = 0.8
-
+K = np.array([[804.5931813021568, 0.0, 640.5], [0.0, 804.5931813021568, 360.5], [0.0, 0.0, 1.0]])
+P = np.array([[804.5931813021568, 0.0, 640.5, -56.32152269115098],
+             [0.0, 804.5931813021568, 360.5, 0.0],
+             [0.0, 0.0, 1.0, 0.0]])
+R = np.array([[1.0, 0.0, 0.0],
+              [0.0, 1.0, 0.0],
+              [0.0, 0.0, 1.0]])
 
 class ControlLaw(object):
 
@@ -95,7 +101,7 @@ class ControlLaw(object):
         return v
 
     def eff(self, img, dt, nu, z_nu_prev, z_e_prev, z_mu_prev, l_type=0):
-        z = np.full(len(self.kp_des), 0.5)
+        z = np.full(len(self.kp_des), 1.)
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         kp_img, desc_img = self.detector.detectAndCompute(gray, None)
         # no keypoints error check
@@ -112,13 +118,18 @@ class ControlLaw(object):
             self.error = True
             return np.zeros([2]), z_nu_prev, z_e_prev, z_mu_prev
         width, height = img.shape[:2]
-        s = fe.kp_to_s(valid_kp_img, width/2)
-        s_des = fe.kp_to_s(valid_kp_des, width/2)
-        lx_apr = self.__lx(s, z)
+        #s = fe.kp_to_s_with_K(valid_kp_img, K, width/2, height/2)
+        #s_des = fe.kp_to_s_with_K(valid_kp_des, K, width/2, height/2)
+        s = fe.kp_to_s_with_KPR(valid_kp_img, K, P, R)#, width/2)#, height)
+        s_des = fe.kp_to_s_with_KPR(valid_kp_des, K, P, R)#, width/2)#, height)
+        s_temp = s - s_des
+        lx_apr = self.__lx(s_temp, z)
         z *= z_scale
+        #print('z=', z_scale)
         lx = self.__lx(s, z)
         lx_sum = (lx + lx_apr)/2
-        s_temp = np.reshape(s - s_des, (-1,))
+        s_temp = np.reshape(s_temp, (-1,))
+        print('s_e = ', s_temp[0:10])
         if l_type == 1:
             l_mat = lx
         elif l_type == 2:
@@ -136,13 +147,12 @@ class ControlLaw(object):
         # end point check by accuracy
         if curr_acc > acc:
             self.stop = True
-        #print("z_nu =", z_nu)
         #print("z_mu =", z_mu)
-        print(m)
-        return m*-0.01, z_nu, z_e, z_mu
+        #print(m)
+        return m, z_nu, z_e, z_mu
 
     def simp_eff(self, img, v, l_type=0):
-        z = np.full(len(self.kp_des), 0.5)
+        z = np.full(len(self.kp_des), 1.)
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         kp_img, desc_img = self.detector.detectAndCompute(gray, None)
         # no keypoints error check
@@ -159,8 +169,8 @@ class ControlLaw(object):
             self.error = True
             return np.zeros([2])
         width, height = img.shape[:2]
-        s = fe.kp_to_s(valid_kp_img, width/2)
-        s_des = fe.kp_to_s(valid_kp_des, width/2)
+        s = fe.kp_to_s_with_K(valid_kp_img, K, width/2)
+        s_des = fe.kp_to_s_with_K(valid_kp_des, K, width/2)
         lx_apr = self.__lx(s, z)
         z *= z_scale
         lx = self.__lx(s, z)
@@ -179,5 +189,5 @@ class ControlLaw(object):
             self.stop = True
         #print("z_nu =", z_nu)
         #print("z_mu =", z_mu)
-        print(m)
-        return m
+        #print(m)
+        return m * 0.1

@@ -48,7 +48,7 @@
     <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen" args="$(arg command_arg3)"/>
   </group>
   
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -x 0.0 -y 0.0 -z 0.0 -model predator -robot_namespace predator" respawn="false" output="screen"/>
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -x -1.0 -y 0.0 -z 0.0 -model predator -robot_namespace predator" respawn="false" output="screen"/>
   
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(dirname)/predator_control.yaml" command="load"/>

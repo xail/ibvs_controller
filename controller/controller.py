@@ -61,7 +61,8 @@ def effort_control(args=None):
     cam_sub = r2c.CameraSubscriber(robot_namespace)
     sub_clock = r2c.ClockSubscriber()
     #odom = r2c.PoseSubscriber(robot_namespace)
-    odom = r2c.SpeedSubscriber(robot_namespace)
+    odom = r2c.PoseSubscriber(robot_namespace)
+    speed = r2c.SpeedSubscriber(robot_namespace)
     sub_joint = r2c.JointSubscriber(robot_namespace)
     eff_pub = r2c.EffortPublisher(robot_namespace=robot_namespace)
     pose_clock_exec = rclpy.executors.MultiThreadedExecutor(num_threads=2)
@@ -71,13 +72,15 @@ def effort_control(args=None):
     #if img is None:
     #    rclpy.spin_once(subscriber)
     #    img = subscriber.img
-    fr = 0.001  # coefficient of friction
-    t_prev = 0.
+    fr = 0.0001  # coefficient of friction
+    k_m = 0.001
+    pose_clock_exec.spin_once()
+    t_prev = sub_clock.clock
     z_e_prev = None
     z_mu_prev = np.zeros(2)
-    z_nu_prev = np.zeros(3)
+    z_nu_prev = odom.nu
     accuracy = 0.01
-
+    contr_type = 2
     #cl = Cc.ControlLaw(lmbda)
     cl = Cc.ControlLaw(detector=cv.ORB_create())
     if len(cl.kp_des) > 0:
@@ -87,15 +90,15 @@ def effort_control(args=None):
         #print("clock=", sub_clock.clock)
         #print("prev_clock=", t_prev)
         dt = float(sub_clock.clock) - float(t_prev)
-        #eff_buff, z_nu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, dt, odom.nu, z_nu_prev,
-        #                                                  z_e_prev,
-        #                                                  z_mu_prev)
-        eff_buff = cl.simp_eff(img_new, odom.vel2)
+        eff_buff, z_nu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, dt, odom.nu, z_nu_prev,
+                                                          z_e_prev,
+                                                          z_mu_prev, l_type=contr_type)
+        #eff_buff = cl.simp_eff(img_new, odom.vel2)
         t_prev = sub_clock.clock
         rclpy.spin_once(sub_joint)
         eff_pub.pub(eff_buff[0] - fr * sub_joint.joint_state.velocity[0],
-                    eff_buff[1] - fr * sub_joint.joint_state.velocity[0])
-        time.sleep(0.5)
+                    eff_buff[1] - fr * sub_joint.joint_state.velocity[1])
+        time.sleep(0.1)
         while cl.stop is False:
             rclpy.spin_once(cam_sub)
             img_new = cam_sub.img
@@ -106,16 +109,21 @@ def effort_control(args=None):
             #print("clock=", sub_clock.clock)
             #print("prev_clock=", t_prev)
             dt = float(sub_clock.clock) - float(t_prev)
-            eff_buff = cl.simp_eff(img_new, odom.vel2)
-            # if dt > 0:
-            #     eff_buff, z_mu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, dt, odom.nu, z_nu_prev,
-            #                                                       z_e_prev,
-            #                                                       z_mu_prev)
-            #     t_prev = sub_clock.clock
+            #eff_buff = cl.simp_eff(img_new, odom.vel2)
+            if dt > 0:
+                eff_buff, z_mu_prev, z_e_prev, z_mu_prev = cl.eff(img_new, dt, odom.nu, z_nu_prev,
+                                                                  z_e_prev,
+                                                                  z_mu_prev, l_type=contr_type)
+                t_prev = sub_clock.clock
             rclpy.spin_once(sub_joint)
             eff_pub.pub(eff_buff[0] - fr * sub_joint.joint_state.velocity[0],
-                        eff_buff[1] - fr * sub_joint.joint_state.velocity[0])
-            time.sleep(0.5)
+                        eff_buff[1] - fr * sub_joint.joint_state.velocity[1])
+            time.sleep(0.1)
+        else:
+            rclpy.spin_once(speed)
+            while speed.vel.linear.x > 0.01 and speed.vel.angular.z > 0.01:
+                m_stop = -k_m * speed.vel.linear.x
+                eff_pub.pub(m_stop, m_stop)
         if cl.error is False:
             print('End point, no errors')
         else:
@@ -129,6 +137,7 @@ def effort_control(args=None):
     pose_clock_exec.shutdown()
     eff_pub.destroy_node()
     sub_joint.destroy_node()
+    speed.destroy_node()
     rclpy.shutdown()
 
 

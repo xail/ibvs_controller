@@ -192,6 +192,7 @@ class PoseSubscriber(Node):
                             self.pose.orientation.z, self.pose.orientation.w])
         self.euler = buff.as_euler('zyx')
         self.nu = np.asarray([self.pose.position.x, self.pose.position.y, self.euler[0]])
+        #print(self.nu)
 
 
 class JointSubscriber(Node):
