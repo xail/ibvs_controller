@@ -143,8 +143,9 @@ class ControlLaw(object):
                 l_mat = l_mat[0:len(z_e_prev)]
         else:
             z_e_prev = s_temp
-        m, z_nu, z_e, z_mu = er.Reg(dt, nu, l_mat, z_nu_prev, z_e_prev, z_mu_prev)
+        m, z_nu, z_e, z_mu = er.Reg(dt, nu, l_mat, z_nu_prev, z_e_prev, z_mu_prev, s_temp)
         # end point check by accuracy
+        print('accur = ', curr_acc)
         if curr_acc > acc:
             self.stop = True
         #print("z_mu =", z_mu)

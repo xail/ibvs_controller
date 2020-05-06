@@ -79,7 +79,6 @@ def effort_control(args=None):
     z_e_prev = None
     z_mu_prev = np.zeros(2)
     z_nu_prev = odom.nu
-    accuracy = 0.01
     contr_type = 2
     #cl = Cc.ControlLaw(lmbda)
     cl = Cc.ControlLaw(detector=cv.ORB_create())
@@ -122,6 +121,7 @@ def effort_control(args=None):
         else:
             rclpy.spin_once(speed)
             while speed.vel.linear.x > 0.01 and speed.vel.angular.z > 0.01:
+                rclpy.spin_once(speed)
                 m_stop = -k_m * speed.vel.linear.x
                 eff_pub.pub(m_stop, m_stop)
         if cl.error is False:
