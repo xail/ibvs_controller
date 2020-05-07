@@ -17,6 +17,7 @@ R = np.array([[1.0, 0.0, 0.0],
               [0.0, 1.0, 0.0],
               [0.0, 0.0, 1.0]])
 
+
 class ControlLaw(object):
 
     kp_des = []
@@ -170,25 +171,28 @@ class ControlLaw(object):
             self.error = True
             return np.zeros([2])
         width, height = img.shape[:2]
-        s = fe.kp_to_s_with_K(valid_kp_img, K, width/2)
-        s_des = fe.kp_to_s_with_K(valid_kp_des, K, width/2)
-        lx_apr = self.__lx(s, z)
+        s = fe.kp_to_s_with_KPR(valid_kp_img, K, P, R)#, width/2)#, height)
+        s_des = fe.kp_to_s_with_KPR(valid_kp_des, K, P, R)#, width/2)#, height)
+        s_temp = s - s_des
+        lx_apr = self.__lx(s_temp, z)
         z *= z_scale
+        # print('z=', z_scale)
         lx = self.__lx(s, z)
-        lx_sum = (lx + lx_apr)/2
-        s_temp = np.reshape(s - s_des, (-1,))
+        lx_sum = (lx + lx_apr) / 2
+        s_temp = np.reshape(s_temp, (-1,))
+        #print('s_e = ', s_temp[0:10])
         if l_type == 1:
             l_mat = lx
         elif l_type == 2:
             l_mat = lx_sum
         else:
             l_mat = lx_apr
-
         m = er.SimpleReg(v, s_temp, l_mat)
         # end point check by accuracy
         if curr_acc > acc:
             self.stop = True
+        print('acc=', curr_acc)
         #print("z_nu =", z_nu)
         #print("z_mu =", z_mu)
         #print(m)
-        return m * 0.1
+        return m

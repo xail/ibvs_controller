@@ -4,8 +4,8 @@ import numpy as np
 
 def b_force(kp_des, desc_des, kp_s, desc_s):
     bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-    kp_num = 40
-    acc = 30.
+    kp_num = 50
+    acc = 25.
 
     # Match descriptors.
     matches = bf.match(desc_des, desc_s)

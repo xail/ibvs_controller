@@ -5,7 +5,12 @@ B_def = np.asarray([[-1.5032, 0.8525], [6.3636, -13.7924]])
 K_1_def = 10 * np.identity(3)
 K_2_def = 5 * np.identity(3)
 #K_mu_def = np.asarray([[8, 0], [0, 20]]) / 4
-K_mu_def = np.asarray([[3, 0], [0, 3]])
+K_mu_def = np.asarray([[-0.1691, 0.0103],[-0.0808,    0.0150]]) #0.8
+#K_mu_def = np.asarray([[-0.4394, -0.0064],[-0.2055 , -0.0145]]) #0.5
+#K_mu_def = np.asarray([[-0.8002, -0.0289], [ -0.3708, -0.0610]])
+# K_mu_def = np.asarray([[-1.7008, -0.0843],
+#                        [-0.7875, -0.1520]])
+#K_mu_def = -K_mu_def/30
 H_def = 0.5 * np.identity(8)
 alpha_def = - np.identity(2)
 gamma_def = np.identity(2)
@@ -18,7 +23,7 @@ def Reg(dt, nu, L, z_nu_prev, z_e_prev, z_mu_prev, e, K_1=K_1_def, K_2=K_2_def, 
         A = A_def
     if z_e_prev is None:
         z_e_prev = np.zeros([len(L)])
-    K_e = np.transpose(L)
+    K_e = np.dot(np.linalg.inv(B), np.transpose(L))
     H_e = 0.5 * np.identity(len(z_e_prev))
     if len(e) > len(z_e_prev):
         e = e[0:len(z_e_prev)]
@@ -60,11 +65,14 @@ def Reg(dt, nu, L, z_nu_prev, z_e_prev, z_mu_prev, e, K_1=K_1_def, K_2=K_2_def, 
     print(' ')
     return tau, z_nu, z_e, z_mu
 
-def SimpleReg(v, e, L, K_mu=K_mu_def):
-    K_e = np.transpose(L) * 2
+
+def SimpleReg(v, e, L, K_mu=K_mu_def, B=B_def):
+    k = 2
+    K_e = k * np.dot(np.linalg.inv(B), np.linalg.pinv(L))
     tau = -np.dot(K_mu, v) - np.dot(K_e, e)
-    #print(K_e)
-    #print(e)
+    print('Kv*v=', -np.dot(K_mu, v))
+    print('Ke*e=', - np.dot(K_e, e))
+    print('m =', tau)
     return tau
 
 

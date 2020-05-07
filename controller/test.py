@@ -181,8 +181,8 @@ def test3(args=None):
     m_right_start = []
     m_left_stop = []
     m_right_stop = []
-    left = 0.0016 * 4
-    right = 0.0023 * 4
+    left = 0.0023 * 2
+    right = 0.0023 * 2
     step = 0.0001
     k = 0.001
     nu = 0.0001
@@ -190,14 +190,17 @@ def test3(args=None):
     while sub_clock.clock == 0:
         rclpy.spin_once(sub_clock)
     eff_pub.pub(left, right)
+    time_init = sub_clock.clock
+    time_cure = time_init
     #print(sub_vel.vel.angular)
-    while sub_vel.vel.linear.x < 0.9546 or abs(sub_vel.vel.angular.z) > 0.01:
+    #while sub_vel.vel.linear.x < 0.9546 or abs(sub_vel.vel.angular.z) > 0.01:
+    while time_cure - time_init < 30:
         right -= k * sub_vel.vel.angular.z
         left += k * sub_vel.vel.angular.z
         #трение
         rclpy.spin_once(sub_joint)
-        left_frict = left - nu * sub_joint.joint_state.velocity[0]
-        right_frict = right - nu * sub_joint.joint_state.velocity[1]
+        left_frict = left #- nu * sub_joint.joint_state.velocity[0]
+        right_frict = right #- nu * sub_joint.joint_state.velocity[1]
         eff_pub.pub(left_frict, right_frict)
         time.sleep(0.05)
         rclpy.spin_once(sub_clock)
@@ -207,6 +210,7 @@ def test3(args=None):
         t_start.append(sub_clock.clock)
         m_left_start.append(left)
         m_right_start.append(right)
+        time_cure = sub_clock.clock
     eff_pub.pub(0.0, 0.0)
     while sub_vel.vel.linear.x > 0:
         rclpy.spin_once(sub_joint)
@@ -222,7 +226,7 @@ def test3(args=None):
         # m_right_stop.append(right_frict)
         time.sleep(0.05)
     eff_pub.pub(0.0, 0.0)
-    gr.save_matlab([m_left_start, m_right_start], [v_start, w_start], t_start, name='exp2')
+    gr.save_matlab([m_left_start, m_right_start], [v_start, w_start], t_start, name='no_frict')
     #gr.save_matlab([m_left_stop, m_right_stop], [v_stop, w_stop], t_stop, name='exp2')
     gr.plotVel(v_start, t_start, name='vel_start_2')
     gr.plotVel(v_stop, t_stop, name='vel_stop_2')
