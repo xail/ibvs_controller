@@ -16,6 +16,9 @@ K_mu_def_2 = np.asarray([[-1.3404, -0.0620],
                         [-0.6212, -0.1127]])
 K_mu_def_3 = np.asarray([[-0.7998, -0.0286],
                          [-0.3718, -0.0538]])
+K_mu_def_4 = np.asarray([[-0.9980, -0.0955], [-0.4632, -0.1716]])
+K_mu_def_5 = np.asarray([[-0.4741 ,  -0.0014],[   -0.0321,   -0.0058]])
+K_mu_def_6 = np.asarray([[-0.4741, -0.0091],[-0.0321, -0.0194]])
 L = np.zeros([52, 2])
 z_e_prev = None
 z_mu_prev = np.zeros(2)
@@ -41,4 +44,5 @@ R = np.array([[1.0, 0.0, 0.0],
 #Buf = np.dot(K_inv, P) - np.array([np.ones, np.dot(K_inv, P)])
 #P_new = np.append(R, np.zeros([3, 1]), axis=1)
 #print(P_new)
-print(np.linalg.eig(A_def-np.dot(B_def, K_mu_def_3*10)))
+print(np.linalg.eig(A_def-np.dot(B_def, K_mu_def_6)))
+print(A_def-np.dot(B_def, K_mu_def_6))

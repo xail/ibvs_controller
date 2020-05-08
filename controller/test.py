@@ -164,8 +164,10 @@ def test2(args=None):
 def test3(args=None):
     robot_namespace = '/predator'
     rclpy.init(args=args)
+    speed_pub = gc.WhSpeedPublisher(robot_namespace)
     sub_clock = gc.ClockSubscriber()
     sub_vel = gc.SpeedSubscriber(robot_namespace)
+    sub_pos = gc.PoseSubscriber(robot_namespace)
     sub_joint = gc.JointSubscriber(robot_namespace)
     eff_pub = gc.EffortPublisher(robot_namespace=robot_namespace)
     #vel_clock_exec = rclpy.executors.MultiThreadedExecutor(num_threads=2)
@@ -177,56 +179,72 @@ def test3(args=None):
     v_stop = []
     w_stop = []
     t_stop = []
+    x = []
+    y = []
+    fi = []
+    rep_m_left = []
+    rep_m_right = []
     m_left_start = []
     m_right_start = []
     m_left_stop = []
     m_right_stop = []
-    left = 0.0023 * 2
-    right = 0.0023 * 2
+    efrt = 0.0023 * 2 / 50 * 0
+    left = 0.0023 * 0
+    left_speed = 5
+    right_speed = 5
+    right = 0.0023 *0
     step = 0.0001
-    k = 0.001
+    k = 0.0001
     nu = 0.0001
     #time.sleep(10)
     while sub_clock.clock == 0:
         rclpy.spin_once(sub_clock)
     eff_pub.pub(left, right)
+    speed_pub.pub(left_speed,right_speed)
     time_init = sub_clock.clock
     time_cure = time_init
     #print(sub_vel.vel.angular)
     #while sub_vel.vel.linear.x < 0.9546 or abs(sub_vel.vel.angular.z) > 0.01:
-    while time_cure - time_init < 30:
-        right -= k * sub_vel.vel.angular.z
-        left += k * sub_vel.vel.angular.z
+    while time_cure - time_init < 50:
+        rclpy.spin_once(sub_vel)
+        # right -= k * sub_vel.vel_w
+        # left += k * sub_vel.vel_w
         #трение
         rclpy.spin_once(sub_joint)
-        left_frict = left #- nu * sub_joint.joint_state.velocity[0]
-        right_frict = right #- nu * sub_joint.joint_state.velocity[1]
+        left_frict = left #- nu * sub_joint.joint_state.velocity[0] + efrt * (time_cure - time_init)
+        right_frict = right #- nu * sub_joint.joint_state.velocity[1] + efrt * (time_cure - time_init)
+        speed_pub.pub(left_speed, right_speed)
         eff_pub.pub(left_frict, right_frict)
         time.sleep(0.05)
         rclpy.spin_once(sub_clock)
-        rclpy.spin_once(sub_vel)
-        v_start.append(sub_vel.vel.linear.x)
-        w_start.append(sub_vel.vel.angular.z)
+        rclpy.spin_once(sub_pos)
+        v_start.append(sub_vel.vel_x)
+        w_start.append(sub_vel.vel_w)
         t_start.append(sub_clock.clock)
         m_left_start.append(left)
         m_right_start.append(right)
+        x.append(sub_pos.nu[0])
+        y.append(sub_pos.nu[1])
+        fi.append(sub_pos.nu[2])
+        rep_m_left.append(sub_joint.joint_state.velocity[0])
+        rep_m_right.append(sub_joint.joint_state.velocity[1])
         time_cure = sub_clock.clock
     eff_pub.pub(0.0, 0.0)
-    while sub_vel.vel.linear.x > 0:
+    while sub_vel.vel_x == 0:
         rclpy.spin_once(sub_joint)
         left_frict = -nu * sub_joint.joint_state.velocity[0]
         right_frict = -nu * sub_joint.joint_state.velocity[1]
         eff_pub.pub(left_frict, right_frict)
         rclpy.spin_once(sub_clock)
         rclpy.spin_once(sub_vel)
-        v_stop.append(sub_vel.vel.linear.x)
+        v_stop.append(sub_vel.vel_x)
         # w_stop.append(sub_vel.vel.angular.z)
         t_stop.append(sub_clock.clock)
         # m_left_stop.append(left_frict)
         # m_right_stop.append(right_frict)
         time.sleep(0.05)
     eff_pub.pub(0.0, 0.0)
-    gr.save_matlab([m_left_start, m_right_start], [v_start, w_start], t_start, name='no_frict')
+    gr.save_matlab([m_left_start, m_right_start], [v_start, w_start], [x, y, fi], [rep_m_left, rep_m_right], t_start, name='test_no_fric_burger')
     #gr.save_matlab([m_left_stop, m_right_stop], [v_stop, w_stop], t_stop, name='exp2')
     gr.plotVel(v_start, t_start, name='vel_start_2')
     gr.plotVel(v_stop, t_stop, name='vel_stop_2')
@@ -234,6 +252,7 @@ def test3(args=None):
     sub_vel.destroy_node()
     #vel_clock_exec.shutdown()
     eff_pub.destroy_node()
+    speed_pub.destroy_node()
     sub_joint.destroy_node()
     rclpy.shutdown()
 
