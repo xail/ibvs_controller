@@ -20,12 +20,15 @@ def F_2(L, K_e, H_e):
     return -K_e + A.dot(T(L, H_e)) + K_v.dot(T(L, H_e))
 
 
+# A = np.asarray([[0.9804, -0.0219], [0.0252, 0.9473]])
+# B = np.asarray([[0.3071, 0.3071], [-0.8010, -0.8010]])
 A = -np.identity(2)
 B = np.identity(2)
 
 K_1 = 10 * np.identity(3)
 K_2 = 5 * np.identity(3)
-K_v = np.asarray([[8, 0], [0, 20]])
+K_v = np.asarray([[-1.9, 0], [0, -1.8]])
+#K_v = np.array([[0.2630,-0.0413],[0.2630 ,  -0.0413]])
 
 #H_e = 0.5 * np.identity(8)
 alpha = - np.identity(2)

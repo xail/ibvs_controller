@@ -5,6 +5,7 @@ import ros2connect.gazebo_connect as r2c
 import cv2 as cv
 import rclpy
 import keyboard
+import controller.motor as mr
 import time
 from os.path import expanduser
 
@@ -195,6 +196,7 @@ def effort_control(args=None):
                                                            clock_sub, vel_sub, pos_sub, p_prev, l_type=control_type)
         vel_pub.vel = v
         vel_pub.pub_vel()
+        time.sleep(0.05)
         while cl.stop is False:
             rclpy.spin_once(cam_sub)
             img_new = cam_sub.img
@@ -206,6 +208,7 @@ def effort_control(args=None):
                                                                 clock_sub, vel_sub, pos_sub, p_prev, l_type=control_type)
             vel_pub.vel = v
             vel_pub.pub_vel()
+            time.sleep(0.05)
         if cl.error is False:
             print('End point, no errors')
         else:
@@ -245,6 +248,7 @@ def simple_eff_con(args=None):
         img_new = cam_sub.img
         vel_pub.vel = cl.simp_eff(img_new, clock_sub, vel_sub, l_type=control_type)
         vel_pub.pub_vel()
+        time.sleep(0.1)
         while cl.stop is False:
             rclpy.spin_once(cam_sub)
             rclpy.spin_once(vel_sub)
@@ -256,6 +260,7 @@ def simple_eff_con(args=None):
             print('vel_pub')
             print(vel_pub.vel[0])
             vel_pub.pub_vel()
+            time.sleep(0.1)
         if cl.error is False:
             print('End point, no errors')
         else:

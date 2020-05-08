@@ -51,8 +51,9 @@ from controller.model import *
 
 
 def SimpleReg(v, e, L):
-    k = 10
+    k = 1
     # K_e = k * np.dot(np.linalg.inv(B), np.linalg.pinv(L))
+    #K_e = k * np.transpose(L)
     K_e = k * np.dot(np.linalg.pinv(B), np.linalg.pinv(L))
     tau = -np.dot(K_v, v) - np.dot(K_e, e)
     print('Kv*v=', -np.dot(K_v, v))
@@ -62,7 +63,7 @@ def SimpleReg(v, e, L):
 
 
 def Reg_dist(L, z_eta_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, e, p_prev, L0):
-    k = 1
+    k = 3
     if z_e_prev is None:
         z_e_prev = np.zeros([len(L)])
     K_e = k * np.dot(np.linalg.pinv(B), np.linalg.pinv(L))

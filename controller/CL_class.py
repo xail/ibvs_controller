@@ -124,10 +124,12 @@ class ControlLaw(object):
         width, height = img.shape[:2]
         #s = fe.kp_to_s_with_K(valid_kp_img, K, width/2, height/2)
         #s_des = fe.kp_to_s_with_K(valid_kp_des, K, width/2, height/2)
-        s = fe.kp_to_s_with_KPR(valid_kp_img, K, P, R)#, width/2)#, height)
-        s_des = fe.kp_to_s_with_KPR(valid_kp_des, K, P, R)#, width/2)#, height)
+        # s = fe.kp_to_s_with_KPR(valid_kp_img, K, P, R)#, width/2)#, height)
+        # s_des = fe.kp_to_s_with_KPR(valid_kp_des, K, P, R)#, width/2)#, height)
+        s = fe.kp_to_s(valid_kp_img, width / 2)
+        s_des = fe.kp_to_s(valid_kp_des, width / 2)
         s_temp = s - s_des
-        lx_apr = self.__lx(s_temp, z)
+        lx_apr = self.__lx(s, z)
         z /= z_scale
         #print('z=', z_scale)
         lx = self.__lx(s, z)
@@ -178,10 +180,12 @@ class ControlLaw(object):
             self.error = True
             return np.zeros([2])
         width, height = img.shape[:2]
-        s = fe.kp_to_s_with_KPR(valid_kp_img, K, P, R)#, width/2)#, height)
-        s_des = fe.kp_to_s_with_KPR(valid_kp_des, K, P, R)#, width/2)#, height)
+        # s = fe.kp_to_s_with_KPR(valid_kp_img, K, P, R)#, width/2)#, height)
+        # s_des = fe.kp_to_s_with_KPR(valid_kp_des, K, P, R)#, width/2)#, height)
+        s = fe.kp_to_s(valid_kp_img, width / 2)
+        s_des = fe.kp_to_s(valid_kp_des, width / 2)
         s_temp = s - s_des
-        lx_apr = self.__lx(s_temp, z)
+        lx_apr = self.__lx(s, z)
         z *= z_scale
         # print('z=', z_scale)
         lx = self.__lx(s, z)
