@@ -2,6 +2,7 @@ import numpy as np
 import cv2 as cv
 import controller.bfmtch as bf
 import controller.features_extr as fe
+import rclpy
 from os.path import expanduser
 import controller.motor as mtr
 import controller.eff_reg as er
@@ -34,6 +35,17 @@ class ControlLaw(object):
         img = cv.imread(folder + img_filename)
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         self.kp_des, self.desc_des = self.detector.detectAndCompute(gray, None)
+        self.vel_logger = []
+        self.m_logger = []
+        self.e_logger = []
+        self.z_e_logger = []
+        self.z_v_logger = []
+        self.eta_logger = []
+        self.z_eta_logger = []
+        self.p_logger = []
+        self.K_e_z_e_logger = []
+        self.L_logger = []
+        self.time_logger = []
 
     @staticmethod
     def __l(x, y, z):
@@ -113,23 +125,24 @@ class ControlLaw(object):
             print("No keypoints on this frame")
             self.error = True
             self.stop = True
-            return np.zeros([2]), z_nu_prev, z_e_prev, z_v_prev
+            return np.zeros([2]), np.zeros([2]),  z_nu_prev, z_e_prev, z_v_prev, p_prev
         valid_kp_des, valid_kp_img, curr_acc, z_scale = bf.b_force(self.kp_des, self.desc_des, kp_img, desc_img)
         # no valid kp in frame error check
         if len(valid_kp_img) == 0:
             print("No valid keypoints on this frame")
             self.stop = True
             self.error = True
-            return np.zeros([2]), z_nu_prev, z_e_prev, z_v_prev
+            return np.zeros([2]), np.zeros([2]),  z_nu_prev, z_e_prev, z_v_prev, p_prev
         width, height = img.shape[:2]
         #s = fe.kp_to_s_with_K(valid_kp_img, K, width/2, height/2)
         #s_des = fe.kp_to_s_with_K(valid_kp_des, K, width/2, height/2)
         # s = fe.kp_to_s_with_KPR(valid_kp_img, K, P, R)#, width/2)#, height)
         # s_des = fe.kp_to_s_with_KPR(valid_kp_des, K, P, R)#, width/2)#, height)
-        s = fe.kp_to_s(valid_kp_img, width / 2)
-        s_des = fe.kp_to_s(valid_kp_des, width / 2)
+        s = fe.kp_to_s(valid_kp_img, width / 2, height/2)
+        s_des = fe.kp_to_s(valid_kp_des, width / 2, height/2)
         s_temp = s - s_des
         lx_apr = self.__lx(s, z)
+        L0 = self.__lx(s_des, z)
         z /= z_scale
         #print('z=', z_scale)
         lx = self.__lx(s, z)
@@ -142,7 +155,6 @@ class ControlLaw(object):
             l_mat = lx_sum
         else:
             l_mat = lx_apr
-        L0 = self.__lx(s_des, z)
         if z_e_prev is not None:
             if len(z_e_prev) > len(l_mat):
                 z_e_prev = z_e_prev[0:len(l_mat)]
@@ -152,18 +164,32 @@ class ControlLaw(object):
                 L0 = L0[0:len(z_e_prev)]
         else:
             z_e_prev = s_temp
-        m, z_nu, z_e, z_v, p = er.Reg_dist(l_mat, z_nu_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, s_temp,
+        m, z_eta, z_e, z_v, p, K_e = er.Reg_dist(l_mat, z_nu_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, s_temp,
                                            p_prev, L0)
         # end point check by accuracy
-        print('z=', z[0])
-        print('accur = ', curr_acc)
+        #print('z=', z[0])
+        #print('accur = ', curr_acc)
         if curr_acc > acc:
             self.stop = True
         v = mtr.motor(m, clock_sub, vel_sub)
-        return v, m, z_nu, z_e, z_v, p
+        self.vel_logger.append(vel_sub.vel2)
+        self.m_logger.append(m)
+        self.e_logger.append(s_temp)
+        self.z_e_logger.append(z_e)
+        self.z_v_logger.append(z_v)
+        self.eta_logger.append(pos_sub.eta)
+        self.z_eta_logger.append(z_eta)
+        self.p_logger.append(p)
+        self.K_e_z_e_logger.append(K_e)
+        self.L_logger.append(l_mat)
+        self.time_logger.append(clock_sub.clock)
+        # if abs(v[0]) > 1 or abs(v[1]) > 1:
+        if z[0] < 0.55 or clock_sub.clock > 60:
+            self.stop = True
+        return v, m, z_eta, z_e, z_v, p
 
     def simp_eff(self, img, clock_sub, vel_sub, l_type=0):
-        z = np.full(len(self.kp_des), 1.)
+        z = np.full(len(self.kp_des), 0.5)
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         kp_img, desc_img = self.detector.detectAndCompute(gray, None)
         # no keypoints error check
@@ -198,12 +224,16 @@ class ControlLaw(object):
             l_mat = lx_sum
         else:
             l_mat = lx_apr
+        rclpy.spin_once(vel_sub)
         m = er.SimpleReg(vel_sub.vel2, s_temp, l_mat)
         # end point check by accuracy
         if curr_acc > acc:
             self.stop = True
-        print('acc=', curr_acc)
+        #print('acc=', curr_acc)
         v = mtr.motor(m, clock_sub, vel_sub)
+        self.vel_logger.append(v)
+        self.m_logger.append(m)
+        self.e_logger.append(s_temp)
         return v
 
     # def eff(self, img, dt, nu, z_nu_prev, z_e_prev, z_mu_prev, l_type=0):

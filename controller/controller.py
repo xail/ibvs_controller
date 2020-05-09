@@ -7,7 +7,9 @@ import rclpy
 import keyboard
 import controller.motor as mr
 import time
+import controller.graph as gr
 from os.path import expanduser
+
 
 home = expanduser("~")
 img_filename = 'Obj.png'
@@ -187,16 +189,17 @@ def effort_control(args=None):
     p_prev = np.zeros(2)
     control_type = 2
     #cl = Cc.ControlLaw(lmbda)
-    cl = Cc.ControlLaw(detector=cv.ORB_create())
+    cl = Cc.ControlLaw(detector=cv.AKAZE_create())
     if len(cl.kp_des) > 0:
         rclpy.spin_once(cam_sub)
         img_new = cam_sub.img
         rclpy.spin_once(pos_sub)
+
         v, tau_prev, z_eta_prev, z_e_prev, z_v_prev, p_prev = cl.eff(img_new, z_eta_prev, z_e_prev, z_v_prev, tau_prev,
                                                            clock_sub, vel_sub, pos_sub, p_prev, l_type=control_type)
         vel_pub.vel = v
         vel_pub.pub_vel()
-        time.sleep(0.05)
+        # time.sleep(0.1)
         while cl.stop is False:
             rclpy.spin_once(cam_sub)
             img_new = cam_sub.img
@@ -208,7 +211,7 @@ def effort_control(args=None):
                                                                 clock_sub, vel_sub, pos_sub, p_prev, l_type=control_type)
             vel_pub.vel = v
             vel_pub.pub_vel()
-            time.sleep(0.05)
+            # time.sleep(0.)
         if cl.error is False:
             print('End point, no errors')
         else:
@@ -216,6 +219,12 @@ def effort_control(args=None):
     else:
         print("Bad init image. Desired key points vector is empty")
     stop(vel_pub)
+
+    gr.save_matlab_n(['vel', 'm', 'e', 'z_e', 'z_v', 'eta', 'z_eta', 'p', 'K_e_z_e', 'L', 'time'],
+                     [cl.vel_logger, cl.m_logger, cl.e_logger, cl.z_e_logger,
+                      cl.z_v_logger, cl.eta_logger, cl.z_eta_logger, cl.p_logger,
+                      cl.K_e_z_e_logger, cl.L_logger, cl.time_logger],
+                     'akaze_eff_controller')
     cam_sub.destroy_node()
     clock_sub.destroy_node()
     pos_sub.destroy_node()
@@ -241,7 +250,7 @@ def simple_eff_con(args=None):
     rclpy.spin_once(clock_sub)
     clock_sub.prev_clock = clock_sub.clock
     control_type = 2
-    cl = Cc.ControlLaw(detector=cv.ORB_create())
+    cl = Cc.ControlLaw(detector=cv.AKAZE_create())
     if len(cl.kp_des) > 0:
         rclpy.spin_once(cam_sub)
         rclpy.spin_once(vel_sub)
@@ -268,7 +277,50 @@ def simple_eff_con(args=None):
     else:
         print("Bad init image. Desired key points vector is empty")
     stop(vel_pub)
+    gr.save_matlab_n(['vel', 'm', 'e'],
+                     [cl.vel_logger, cl.m_logger, cl.e_logger],
+                     'akaze_simple_eff_controller')
     cam_sub.destroy_node()
+    clock_sub.destroy_node()
+    odom.destroy_node()
+    vel_sub.destroy_node()
+    rclpy.shutdown()
+
+
+def fixed_eff(args=None):
+    rclpy.init(args=args)
+    robot_namespace = '/predator'
+    clock_sub = r2c.ClockSubscriber()
+    odom = r2c.PoseSubscriber(robot_namespace)
+    vel_pub = r2c.SpeedPublisherEff(robot_namespace)
+    vel_sub = r2c.SpeedSubscriber(robot_namespace)
+    rclpy.spin_once(clock_sub)
+    clock_sub.prev_clock = clock_sub.clock
+    vel_logger = []
+    time_logger = []
+    pose_logger = []
+    vel_input_logger = []
+    print(clock_sub.clock)
+    #time.sleep(0.1)
+    i = 0
+    # while clock_sub.clock < 30:
+    while i < 300:
+        rclpy.spin_once(vel_sub)
+        rclpy.spin_once(odom)
+        # vel_pub.vel = mr.motor([0.1 + 0.1 * int(i/10), 0.0], clock_sub, vel_sub)
+        # vel_pub.vel = [0.1 + 0.1 * int(i/10), 0.0]
+        vel_pub.vel = mr.motor([10, 0.0], clock_sub, vel_sub)
+        vel_input_logger.append(vel_pub.vel)
+        vel_logger.append(vel_sub.vel2)
+        time_logger.append(clock_sub.clock)
+        pose_logger.append(odom.eta)
+        print(vel_pub.vel)
+        vel_pub.pub_vel()
+        i += 1
+    stop(vel_pub)
+    gr.save_matlab_n(['vel_gazebo', 'pose', 'time', 'vel_input'],
+                     [vel_logger, pose_logger, time_logger, vel_input_logger],
+                     'fixed_eff_controller')
     clock_sub.destroy_node()
     odom.destroy_node()
     vel_sub.destroy_node()
@@ -292,6 +344,9 @@ if __name__ == '__effort_control__':
 
 if __name__ == '__simple_eff_con__':
     simple_eff_con()
+
+if __name__ == '__fixed_eff__':
+    fixed_eff()
 
 # def effort_control(args=None):
 #     rclpy.init(args=args)

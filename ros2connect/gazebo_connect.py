@@ -187,7 +187,8 @@ class SpeedSubscriber(Node):
 
     def listener_callback(self, msg):
         self.twist = msg.twist.twist
-        self.vel_x = np.sqrt(np.power(self.twist.linear.x, 2) + np.power(self.twist.linear.y, 2))
+        #self.vel_x = np.sqrt(np.power(self.twist.linear.x, 2) + np.power(self.twist.linear.y, 2))
+        self.vel_x = self.twist.linear.x
         self.vel_w = self.twist.angular.z
         self.vel2 = np.array([self.vel_x, self.vel_w])
 

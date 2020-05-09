@@ -2,7 +2,7 @@ import numpy as np
 
 
 def R(eta):
-    return np.asarray([[np.cos(eta[2]), 0.0], [np.sin(eta[2]), 0.0], [0.0, 1.0]])
+    return np.asarray([[np.cos(eta[2]), 0.0], [np.sin(eta[2]), 0.0], [0.0, -1.0]])
 
 
 def T(L, H_e):
@@ -25,9 +25,9 @@ def F_2(L, K_e, H_e):
 A = -np.identity(2)
 B = np.identity(2)
 
-K_1 = 10 * np.identity(3)
-K_2 = 5 * np.identity(3)
-K_v = np.asarray([[-1.9, 0], [0, -1.8]])
+K_1 = 20 * np.identity(3)
+K_2 = 6 * np.identity(3)
+K_v = np.asarray([[3, 0], [0, 10]])
 #K_v = np.array([[0.2630,-0.0413],[0.2630 ,  -0.0413]])
 
 #H_e = 0.5 * np.identity(8)

@@ -41,3 +41,14 @@ def save_matlab(list_of_input, list_of_output, list_of_nu, list_of_rep_m, time, 
     scipy.io.savemat(folder + name + '.mat', mdict={'input1': input1, 'input2': input2, 'output1': output1,
                                                     'output2': output2, 'x': x, 'y': y, 'phi': fi,
                                                     'left_w_speed': left_m, 'right_w_speed': right_m, 'time': t})
+
+
+def save_matlab_one(v, name='mtlb_data', folder=home + '/resources/matlab/'):
+    vel = np.asarray(v)
+    scipy.io.savemat(folder + name + '.mat', mdict={'vel': vel})
+
+
+def save_matlab_n(listOfNames, listOfArrays, name='mtlb_data', folder=home + '/resources/matlab/'):
+    zipbObj = zip(listOfNames, listOfArrays)
+    dictOfWords = dict(zipbObj)
+    scipy.io.savemat(folder + name + '.mat', mdict= dictOfWords)

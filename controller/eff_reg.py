@@ -51,21 +51,20 @@ from controller.model import *
 
 
 def SimpleReg(v, e, L):
-    k = 1
+    k = 2
     # K_e = k * np.dot(np.linalg.inv(B), np.linalg.pinv(L))
     #K_e = k * np.transpose(L)
     K_e = k * np.dot(np.linalg.pinv(B), np.linalg.pinv(L))
+    #print('v = ', v)
     tau = -np.dot(K_v, v) - np.dot(K_e, e)
-    print('Kv*v=', -np.dot(K_v, v))
-    print('Ke*e=', - np.dot(K_e, e))
-    print('m =', tau)
+    #print('Kv*v=', -np.dot(K_v, v))
+    #print('Ke*e=', - np.dot(K_e, e))
+    #print('m =', tau)
     return tau
 
 
 def Reg_dist(L, z_eta_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, e, p_prev, L0):
     k = 3
-    if z_e_prev is None:
-        z_e_prev = np.zeros([len(L)])
     K_e = k * np.dot(np.linalg.pinv(B), np.linalg.pinv(L))
     H_e = 0.5 * np.identity(len(e))
     rclpy.spin_once(clock_sub)
@@ -73,21 +72,28 @@ def Reg_dist(L, z_eta_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, e,
         rclpy.spin_once(clock_sub)
     rclpy.spin_once(pos_sub)
     t = np.linspace(clock_sub.prev_clock, clock_sub.clock, 10)
+    #print('eta = ', pos_sub.eta)
+    # z_e = e
+    #z_e_prev = e
     z_v_buff = odeint(d_z_v, z_v_prev, t, args=(tau_prev, z_eta_prev, pos_sub.eta))
     z_v = z_v_buff[len(t)-1]
+    #print('z_v = ', z_v)
     z_eta_buff = odeint(d_z_eta, z_eta_prev, t, args=(z_v, pos_sub.eta))
     z_eta = z_eta_buff[len(t) - 1]
+    #print('z_eta = ', z_eta)
     z_e_buff = odeint(d_z_e, z_e_prev, t, args=(z_v, L, e, H_e))
     z_e = z_e_buff[len(t) - 1]
     p_buff = odeint(d_p, p_prev, t, args=(pos_sub.eta, z_eta, e, z_e, L0, K_e, H_e))
     p = p_buff[len(t) - 1]
-    xi = odeint(d_xi, np.zeros(2), t, args=(p, pos_sub.eta, z_eta, e, z_e))
-    print(-np.dot(K_v, z_v))
-    print(np.dot(K_e, z_e))
-    print(xi[len(t) - 1])
-    tau = -np.dot(K_v, z_v) - np.dot(K_e, z_e) + xi[len(t) - 1]
-    print('m =', tau)
-    return tau, z_eta, z_e, z_v, p
+    # p = np.zeros(2)
+    #print('p = ', p)
+    xi = gamma.dot(p) #+ mu_eta * (pos_sub.eta - z_eta) + mu_e * (e - z_e)
+    #print( 'xi = ', xi)
+    #print('np.dot(K_v, z_v) = ',np.dot(K_v, z_v))
+    #print('np.dot(K_e, z_e) = ',np.dot(K_e, z_e))
+    tau = -np.dot(K_v, z_v) - np.dot(K_e, z_e) + xi
+    #print('m =', tau)
+    return tau, z_eta, z_e, z_v, p, np.dot(K_e, z_e)
 
 
 def d_z_v(z_v, t, tau_prev, z_eta_prev, eta):
@@ -112,6 +118,3 @@ def d_p(p, t, eta, z_eta, e, z_e, L, K_e, H_e):
     return dp
 
 
-def d_xi(xi, t, p, eta, z_eta, e, z_e):
-    dxi = gamma.dot(p) #+ mu_eta * (eta - z_eta) + mu_e * (e - z_e)
-    return dxi
