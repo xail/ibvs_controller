@@ -1,5 +1,5 @@
 import numpy as np
-
+import scipy.signal as sig
 
 def R(eta):
     return np.asarray([[np.cos(eta[2]), 0.0], [np.sin(eta[2]), 0.0], [0.0, -1.0]])
@@ -38,3 +38,4 @@ mu_eta = 0
 mu_e = 0
 nu0 = np.zeros(3)
 
+sys = sig.lti(A, B, np.identity(2), [[0.,0.],[0.,0.]])

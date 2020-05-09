@@ -10,6 +10,8 @@ import time
 import controller.graph as gr
 from os.path import expanduser
 
+import controller.model as md
+
 
 home = expanduser("~")
 img_filename = 'Obj.png'
@@ -300,16 +302,18 @@ def fixed_eff(args=None):
     time_logger = []
     pose_logger = []
     vel_input_logger = []
+    prev_vel = np.zeros(2)
     print(clock_sub.clock)
     #time.sleep(0.1)
     i = 0
     # while clock_sub.clock < 30:
-    while i < 300:
+    while i < 100:
         rclpy.spin_once(vel_sub)
         rclpy.spin_once(odom)
         # vel_pub.vel = mr.motor([0.1 + 0.1 * int(i/10), 0.0], clock_sub, vel_sub)
         # vel_pub.vel = [0.1 + 0.1 * int(i/10), 0.0]
-        vel_pub.vel = mr.motor([10, 0.0], clock_sub, vel_sub)
+        vel_pub.vel = mr.motor_lsim(md.sys, [5.0, 0.0] , clock_sub, vel_sub, prev_vel)
+        prev_vel = vel_pub.vel
         vel_input_logger.append(vel_pub.vel)
         vel_logger.append(vel_sub.vel2)
         time_logger.append(clock_sub.clock)
