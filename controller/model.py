@@ -22,12 +22,12 @@ def F_2(L, K_e, H_e):
 
 # A = np.asarray([[0.9804, -0.0219], [0.0252, 0.9473]])
 # B = np.asarray([[0.3071, 0.3071], [-0.8010, -0.8010]])
-A = -np.identity(2)
-B = np.identity(2)
+A = -np.identity(2) / 4
+B = np.identity(2) / 4
 
-K_1 = 20 * np.identity(3)
-K_2 = 6 * np.identity(3)
-K_v = np.asarray([[3, 0], [0, 10]])
+K_1 = 10 * np.identity(3)
+K_2 = 5 * np.identity(3)
+K_v = np.asarray([[2, 0], [0, 8]])
 #K_v = np.array([[0.2630,-0.0413],[0.2630 ,  -0.0413]])
 
 #H_e = 0.5 * np.identity(8)
@@ -38,4 +38,6 @@ mu_eta = 0
 mu_e = 0
 nu0 = np.zeros(3)
 
-sys = sig.lti(A, B, np.identity(2), [[0.,0.],[0.,0.]])
+sys = sig.lti(A, B, np.identity(2), [[0., 0.], [0., 0.]])
+# tau_dist = [-0.01, -0.03]
+tau_dist = [-0.03, -0.12]

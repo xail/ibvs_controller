@@ -226,7 +226,7 @@ def effort_control(args=None):
                      [cl.vel_logger, cl.m_logger, cl.e_logger, cl.z_e_logger,
                       cl.z_v_logger, cl.eta_logger, cl.z_eta_logger, cl.p_logger,
                       cl.K_e_z_e_logger, cl.L_logger, cl.time_logger],
-                     'akaze_eff_controller')
+                     'akaze_eff_controller_lsim')
     cam_sub.destroy_node()
     clock_sub.destroy_node()
     pos_sub.destroy_node()
@@ -312,7 +312,8 @@ def fixed_eff(args=None):
         rclpy.spin_once(odom)
         # vel_pub.vel = mr.motor([0.1 + 0.1 * int(i/10), 0.0], clock_sub, vel_sub)
         # vel_pub.vel = [0.1 + 0.1 * int(i/10), 0.0]
-        vel_pub.vel = mr.motor_lsim(md.sys, [5.0, 0.0] , clock_sub, vel_sub, prev_vel)
+        # vel_pub.vel = mr.motor([1.0, 0.0], clock_sub, vel_sub, prev_vel)
+        vel_pub.vel = mr.motor_lsim(md.sys, [1.0, 0.0], clock_sub, vel_sub, prev_vel)
         prev_vel = vel_pub.vel
         vel_input_logger.append(vel_pub.vel)
         vel_logger.append(vel_sub.vel2)

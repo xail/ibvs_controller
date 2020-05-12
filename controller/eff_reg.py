@@ -64,14 +64,17 @@ def SimpleReg(v, e, L):
 
 
 def Reg_dist(L, z_eta_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, e, p_prev, L0):
-    k = 3
-    K_e = k * np.dot(np.linalg.pinv(B), np.linalg.pinv(L))
+    k = 0.5
+    # K_e = np.dot(k, np.dot(np.linalg.pinv(B), np.linalg.pinv(L)))
+    K_e = np.dot(k, np.linalg.pinv(L))
+    # K_e = np.dot(np.linalg.pinv(B), np.linalg.pinv(L))
+    # K_e = k * np.dot(np.linalg.pinv(B), np.transpose(Le))
     H_e = 0.5 * np.identity(len(e))
     rclpy.spin_once(clock_sub)
     while clock_sub.clock - clock_sub.prev_clock <= 0.0:
         rclpy.spin_once(clock_sub)
     rclpy.spin_once(pos_sub)
-    t = np.linspace(clock_sub.prev_clock, clock_sub.clock, 10)
+    t = np.linspace(0, clock_sub.clock - clock_sub.prev_clock, 10)
     #print('eta = ', pos_sub.eta)
     # z_e = e
     #z_e_prev = e
@@ -86,13 +89,21 @@ def Reg_dist(L, z_eta_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, e,
     p_buff = odeint(d_p, p_prev, t, args=(pos_sub.eta, z_eta, e, z_e, L0, K_e, H_e))
     p = p_buff[len(t) - 1]
     # p = np.zeros(2)
-    #print('p = ', p)
+    # print('p = ', p)
     xi = gamma.dot(p) #+ mu_eta * (pos_sub.eta - z_eta) + mu_e * (e - z_e)
     #print( 'xi = ', xi)
     #print('np.dot(K_v, z_v) = ',np.dot(K_v, z_v))
     #print('np.dot(K_e, z_e) = ',np.dot(K_e, z_e))
     tau = -np.dot(K_v, z_v) - np.dot(K_e, z_e) + xi
     #print('m =', tau)
+    if tau[0] > 1.5:
+        tau[0] = 1.5
+    if tau[1] > 1.5:
+        tau[1] = 1.5
+    # if abs(tau[0] - tau_prev[0]) > 0.1:
+    #     tau[0] = 0.1 * np.sign(tau[0] - tau_prev[0])
+    # if abs(tau[1] - tau_prev[1]) > 0.1:
+    #     tau[1] = 0.1 * np.sign(tau[1] - tau_prev[1])
     return tau, z_eta, z_e, z_v, p, np.dot(K_e, z_e)
 
 

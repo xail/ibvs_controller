@@ -6,6 +6,7 @@ import rclpy
 from os.path import expanduser
 import controller.motor as mtr
 import controller.eff_reg as er
+import controller.model as md
 
 home = expanduser("~")
 
@@ -143,10 +144,13 @@ class ControlLaw(object):
         s_temp = s - s_des
         lx_apr = self.__lx(s, z)
         L0 = self.__lx(s_des, z)
+        Le = self.__lx(s_temp, z)
         z /= z_scale
         #print('z=', z_scale)
         lx = self.__lx(s, z)
+        Le2 = self.__lx(s_temp, z)
         lx_sum = (lx + lx_apr)/2
+        Le_sum = (Le + Le2)/2
         s_temp = np.reshape(s_temp, (-1,))
         #print('s_e = ', s_temp[0:10])
         if l_type == 1:
@@ -162,6 +166,7 @@ class ControlLaw(object):
                 l_mat = l_mat[0:len(z_e_prev)]
                 s_temp = s_temp[0:len(z_e_prev)]
                 L0 = L0[0:len(z_e_prev)]
+                Le_sum = Le_sum[0:len(z_e_prev)]
         else:
             z_e_prev = s_temp
         m, z_eta, z_e, z_v, p, K_e = er.Reg_dist(l_mat, z_nu_prev, z_e_prev, z_v_prev, tau_prev, clock_sub, pos_sub, s_temp,
@@ -171,7 +176,7 @@ class ControlLaw(object):
         #print('accur = ', curr_acc)
         if curr_acc > acc:
             self.stop = True
-        v = mtr.motor(m, clock_sub, vel_sub)
+        v = mtr.motor_lsim(md.sys, m, clock_sub, vel_sub, md.tau_dist)
         self.vel_logger.append(vel_sub.vel2)
         self.m_logger.append(m)
         self.e_logger.append(s_temp)
@@ -184,7 +189,8 @@ class ControlLaw(object):
         self.L_logger.append(l_mat)
         self.time_logger.append(clock_sub.clock)
         # if abs(v[0]) > 1 or abs(v[1]) > 1:
-        if z[0] < 0.55 or clock_sub.clock > 60:
+        if pos_sub.eta[0] > -0.5 or clock_sub.clock > 60:
+            print(z[0])
             self.stop = True
         return v, m, z_eta, z_e, z_v, p
 
