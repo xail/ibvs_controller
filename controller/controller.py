@@ -11,22 +11,17 @@ home = expanduser("~")
 img_filename = 'Obj.png'
 folder = home + '/resources/'
 
-
+# main function that make robot chaise target
 def main(args=None):
     rclpy.init(args=args)
     robot_namespace = '/predator'
     subscriber = r2c.CameraSubscriber()
     publisher = r2c.SpeedPublisher(robot_namespace, cam_coord=True)
-
-    #img = cv.imread(folder + img_filename)
-    #if img is None:
-    #    rclpy.spin_once(subscriber)
-    #    img = subscriber.img
+    
     Plot = False
     lmbda = 3
     accuracy = 0.01
 
-    #cl = Cc.ControlLaw(lmbda)
     cl = Cc.ControlLaw(lmbda, detector=cv.AKAZE_create(), velGraph=Plot)
     if len(cl.kp_des) > 0:
         rclpy.spin_once(subscriber)
@@ -43,8 +38,6 @@ def main(args=None):
                 break
             publisher.vel = cl.vel(img_new)
             publisher.pub_vel()
-            #rclpy.spin_once(publisher)
-        #print(publisher.vel)
         if cl.error is False:
             print('End point, no errors')
     else:
@@ -57,7 +50,7 @@ def main(args=None):
     publisher.destroy_node()
     rclpy.shutdown()
 
-
+# taking picture of target and save it
 def capture(args=None):
     rclpy.init(args=args)
 
@@ -84,7 +77,7 @@ def exit_cond(vel, accuracy):
         print('Unsupported number DOF')
         return False
 
-
+# start target movement on x axis with speed 1
 def move_target(args=None):
     rclpy.init(args=args)
     robot_namespace = '/target'
@@ -100,13 +93,13 @@ def move_target(args=None):
     publisher.destroy_node()
     rclpy.shutdown()
 
-
+# predator's stop function
 def stop(publisher):
     vel = np.zeros(shape=(len(publisher.vel), 1))
     publisher.vel = vel
     publisher.pub_vel()
 
-
+# start torsion of the predator around the z axis with speed 1 
 def move_predator(args=None):
     rclpy.init(args=args)
     robot_namespace = '/predator2'
@@ -122,17 +115,12 @@ def move_predator(args=None):
     publisher.destroy_node()
     rclpy.shutdown()
 
-
+# chase target untill press q
 def chase_key(args=None):
     rclpy.init(args=args)
     robot_namespace = '/predator'
     subscriber = r2c.CameraSubscriber()
     publisher = r2c.SpeedPublisher(robot_namespace, cam_coord=True)
-
-    #img = cv.imread(folder + img_filename)
-    #if img is None:
-    #    rclpy.spin_once(subscriber)
-    #    img = subscriber.img
 
     lmbda = 1
     accuracy = 0.001
@@ -158,7 +146,6 @@ def chase_key(args=None):
                     break
             except:
                 None
-            #rclpy.spin_once(publisher)
         print(publisher.vel)
         print('End point, no errors')
     else:
