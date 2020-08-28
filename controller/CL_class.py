@@ -10,7 +10,7 @@ home = expanduser("~")
 folder = home + '/resources/'
 acc = 0.8
 
-
+# controll law class made under the chaumette article
 class ControlLaw(object):
 
     kp_des = []
@@ -94,10 +94,6 @@ class ControlLaw(object):
         lx = np.linalg.pinv(self.__lx(s, z))
         lx_sum = (lx + lx_apr)/2
         s_temp = np.reshape(s - s_des, (-1, 1))
-        # print("lx")
-        # print(lx)
-        # print("lx_apr")
-        # print(lx_apr)
         v = self.lmbd * np.dot(lx_sum, s_temp)
         # end point check by accuracy
         if curr_acc > acc:
